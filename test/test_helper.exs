@@ -65,7 +65,7 @@ defmodule Backoffice.Guardian.TestHelper do
   def secret_key_function, do: "secret"
 
   def build_jwt(claims) do
-    config = Application.get_env(:guardian, Backoffice.Guardian)
+    config = Application.get_env(:bo_guardian, Backoffice.Guardian)
     algo = hd(Keyword.get(config, :allowed_algos))
     secret = Keyword.get(config, :secret_key)
 

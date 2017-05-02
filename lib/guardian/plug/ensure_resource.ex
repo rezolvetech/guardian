@@ -42,7 +42,7 @@ defmodule Backoffice.Guardian.Plug.EnsureResource do
   end
 
   defp handle_error(%Plug.Conn{params: params} = conn, opts) do
-    conn = conn |> assign(:guardian_failure, :no_resource) |> halt
+    conn = conn |> assign(:bo_guardian_failure, :no_resource) |> halt
     params = Map.merge(params, %{reason: :no_resource})
 
     {mod, meth} = Map.get(opts, :handler)

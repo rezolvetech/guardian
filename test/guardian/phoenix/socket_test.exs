@@ -20,7 +20,7 @@ defmodule Backoffice.Guardian.Phoenix.SocketTest do
       "sub" => "User:1",
       "something_else" => "foo"}
 
-    config = Application.get_env(:guardian, Backoffice.Guardian)
+    config = Application.get_env(:bo_guardian, Backoffice.Guardian)
     algo = hd(Keyword.get(config, :allowed_algos))
     secret = Keyword.get(config, :secret_key)
 

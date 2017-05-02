@@ -12,7 +12,7 @@ defmodule Backoffice.Guardian.Plug.EnsureResourceTest do
 
     def no_resource(conn, _) do
       conn
-      |> Plug.Conn.assign(:guardian_spec, :no_resource)
+      |> Plug.Conn.assign(:bo_guardian_spec, :no_resource)
       |> Plug.Conn.send_resp(403, "Unauthorized")
     end
   end
@@ -106,6 +106,6 @@ defmodule Backoffice.Guardian.Plug.EnsureResourceTest do
   end
 
   defp must_have_resource(conn) do
-    conn.assigns[:guardian_spec] == :no_resource
+    conn.assigns[:bo_guardian_spec] == :no_resource
   end
 end

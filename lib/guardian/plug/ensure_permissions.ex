@@ -105,7 +105,7 @@ defmodule Backoffice.Guardian.Plug.EnsurePermissions do
   end
 
   defp handle_error(%Plug.Conn{params: params} = conn, opts) do
-    conn = conn |> assign(:guardian_failure, :forbidden) |> halt
+    conn = conn |> assign(:bo_guardian_failure, :forbidden) |> halt
     params = Map.merge(params, %{reason: :forbidden})
 
     {mod, meth} = Map.get(opts, :handler)

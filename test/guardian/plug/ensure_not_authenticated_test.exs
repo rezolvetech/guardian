@@ -10,7 +10,7 @@ defmodule Backoffice.Guardian.Plug.EnsureNotAuthenticatedTest do
 
     def already_authenticated(conn, _) do
       conn
-      |> Plug.Conn.assign(:guardian_spec, :authenticated)
+      |> Plug.Conn.assign(:bo_guardian_spec, :authenticated)
       |> Plug.Conn.send_resp(401, "Authenticated")
     end
   end
@@ -93,6 +93,6 @@ defmodule Backoffice.Guardian.Plug.EnsureNotAuthenticatedTest do
   end
 
   defp already_authenticated?(conn) do
-    conn.assigns[:guardian_spec] == :authenticated
+    conn.assigns[:bo_guardian_spec] == :authenticated
   end
 end

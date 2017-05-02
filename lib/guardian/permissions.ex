@@ -6,7 +6,7 @@ defmodule Backoffice.Guardian.Permissions do
   many permission sets in parallel.
   Backoffice.Guardian must be configured with it's permissions at start time.
 
-      config :guardian, Backoffice.Guardian,
+      config :bo_guardian, Backoffice.Guardian,
              permissions: %{
                default: [
                  :read_profile,

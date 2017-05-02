@@ -17,13 +17,13 @@ defmodule Backoffice.Guardian.Keys do
   end
 
   @doc false
-  def base_key(the_key = "guardian_" <> _) do
+  def base_key(the_key = "bo_guardian_" <> _) do
     String.to_atom(the_key)
   end
 
   @doc false
   def base_key(the_key) do
-    String.to_atom("guardian_#{the_key}")
+    String.to_atom("bo_guardian_#{the_key}")
   end
 
   def key_from_other(other_key) do
@@ -33,6 +33,6 @@ defmodule Backoffice.Guardian.Keys do
     |> find_key_from_other
   end
 
-  defp find_key_from_other("guardian_" <> key), do: String.to_atom(key)
+  defp find_key_from_other("bo_guardian_" <> key), do: String.to_atom(key)
   defp find_key_from_other(_), do: nil
 end

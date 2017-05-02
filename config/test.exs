@@ -1,6 +1,6 @@
 use Mix.Config
 
-config :guardian, Backoffice.Guardian,
+config :bo_guardian, Backoffice.Guardian,
       issuer: "MyApp",
       allowed_algos: ["HS512", "ES512"],
       token_ttl: %{

@@ -46,7 +46,7 @@ defmodule Backoffice.Guardian.Plug.EnsureAuthenticated do
   end
 
   defp handle_error(%Plug.Conn{params: params} = conn, reason, opts) do
-    conn = conn |> assign(:guardian_failure, reason) |> halt
+    conn = conn |> assign(:bo_guardian_failure, reason) |> halt
     params = Map.merge(params, %{reason: reason})
     {mod, meth} = Map.get(opts, :handler)
 

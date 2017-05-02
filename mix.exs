@@ -13,7 +13,7 @@ defmodule Backoffice.Guardian.Mixfile do
   def project do
     [
       name: "Guardian Backoffice",
-      app: :guardian,
+      app: :bo_guardian,
       version: @version,
       elixir: "~> 1.3",
       package: package(),

@@ -49,7 +49,7 @@ defmodule Backoffice.Guardian.Plug.EnsureNotAuthenticated do
 
   @doc false
   defp handle_error(conn, reason, opts) do
-    the_connection = conn |> assign(:guardian_failure, reason) |> halt
+    the_connection = conn |> assign(:bo_guardian_failure, reason) |> halt
 
     {mod, meth} = Map.get(opts, :handler)
     apply(

@@ -11,7 +11,7 @@ defmodule Backoffice.Guardian.Plug.EnsurePermissionTest do
 
     def unauthorized(conn, _) do
       conn
-      |> Plug.Conn.assign(:guardian_spec, :forbidden)
+      |> Plug.Conn.assign(:bo_guardian_spec, :forbidden)
       |> Plug.Conn.send_resp(401, "Unauthorized")
     end
   end
@@ -195,6 +195,6 @@ defmodule Backoffice.Guardian.Plug.EnsurePermissionTest do
   end
 
   def unauthorized?(conn) do
-    conn.assigns[:guardian_spec] == :forbidden
+    conn.assigns[:bo_guardian_spec] == :forbidden
   end
 end

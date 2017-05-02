@@ -12,7 +12,7 @@ defmodule Backoffice.Guardian.Plug.EnsureAuthenticatedTest do
 
     def unauthenticated(conn, _) do
       conn
-      |> Plug.Conn.assign(:guardian_spec, :unauthenticated)
+      |> Plug.Conn.assign(:bo_guardian_spec, :unauthenticated)
       |> Plug.Conn.send_resp(401, "Unauthenticated")
     end
   end
@@ -141,6 +141,6 @@ defmodule Backoffice.Guardian.Plug.EnsureAuthenticatedTest do
   end
 
   defp must_authenticate?(conn) do
-    conn.assigns[:guardian_spec] == :unauthenticated
+    conn.assigns[:bo_guardian_spec] == :unauthenticated
   end
 end

@@ -9,7 +9,7 @@ defmodule Backoffice.Guardian do
 
   ## Configuration
 
-      config :guardian, Backoffice.Guardian,
+      config :bo_guardian, Backoffice.Guardian,
         allowed_algos: ["HS512", "HS384"],
         issuer: "MyApp",
         ttl: { 30, :days },
@@ -22,11 +22,11 @@ defmodule Backoffice.Guardian do
   @default_algos ["HS512"]
   @default_token_type "access"
 
-  unless Application.get_env(:guardian, Backoffice.Guardian) do
+  unless Application.get_env(:bo_guardian, Backoffice.Guardian) do
     raise "Backoffice.Guardian is not configured"
   end
 
-  unless Keyword.get(Application.get_env(:guardian, Backoffice.Guardian), :serializer) do
+  unless Keyword.get(Application.get_env(:bo_guardian, Backoffice.Guardian), :serializer) do
     raise "Backoffice.Guardian requires a serializer"
   end
 
@@ -320,7 +320,7 @@ defmodule Backoffice.Guardian do
   defp verify_issuer?, do: config(:verify_issuer, false)
 
   @doc false
-  def config, do: Application.get_env(:guardian, Backoffice.Guardian)
+  def config, do: Application.get_env(:bo_guardian, Backoffice.Guardian)
   @doc false
   def config(key, default \\ nil),
     do: config() |> Keyword.get(key, default) |> resolve_config(default)

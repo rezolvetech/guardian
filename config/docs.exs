@@ -1,6 +1,6 @@
 use Mix.Config
 
-config :guardian, Backoffice.Guardian,
+config :bo_guardian, Backoffice.Guardian,
       issuer: "MyApp",
       ttl: { 1, :days },
       verify_issuer: true,
