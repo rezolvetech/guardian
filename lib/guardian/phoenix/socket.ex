@@ -1,4 +1,4 @@
-defmodule Guardian.Phoenix.Socket do
+defmodule Backoffice.Guardian.Phoenix.Socket do
   @moduledoc """
   Provides functions for managing authentication with sockets.
   Usually you'd use this on the Socket to authenticate on connection on
@@ -6,8 +6,8 @@ defmodule Guardian.Phoenix.Socket do
 
   There are two main ways to use this module.
 
-  1. use Guardian.Phoenix.Socket
-  2. import Guardian.Phoenix.Socket
+  1. use Backoffice.Guardian.Phoenix.Socket
+  2. import Backoffice.Guardian.Phoenix.Socket
 
   You use this function when you want to automatically sign in a socket
   on `connect`. The case where authentication information is not provided
@@ -16,7 +16,7 @@ defmodule Guardian.Phoenix.Socket do
   ```elixir
   defmodule MyApp.UserSocket do
     use Phoenix.Socket
-    use Guardian.Phoenix.Socket
+    use Backoffice.Guardian.Phoenix.Socket
 
     # This function will be called when there was no authentication information
     def connect(_params,socket) do
@@ -26,13 +26,13 @@ defmodule Guardian.Phoenix.Socket do
   ```
 
   If you want more control over the authentication of the connection, then you
-  should `import Guardian.Phoenix.Socket` and use the `sign_in` function
+  should `import Backoffice.Guardian.Phoenix.Socket` and use the `sign_in` function
   to authenticate.
 
   ```elixir
   defmodule MyApp.UserSocket do
     use Phoenix.Socket
-    import Guardian.Phoenix.Socket
+    import Backoffice.Guardian.Phoenix.Socket
 
     def connect(%{"guardian_token" => jwt} = params, socket) do
       case sign_in(socket, jwt) do
@@ -52,7 +52,7 @@ defmodule Guardian.Phoenix.Socket do
     key = Map.get(opts, :key, :default)
 
     quote do
-      import Guardian.Phoenix.Socket
+      import Backoffice.Guardian.Phoenix.Socket
 
       def connect(%{"guardian_token" => jwt}, socket) do
         case sign_in(socket, jwt, params, key: unquote(key)) do
@@ -68,7 +68,7 @@ defmodule Guardian.Phoenix.Socket do
   used inside channels or sockets.
   """
   def set_current_token(socket, jwt, key \\ :default) do
-    Phoenix.Socket.assign(socket, Guardian.Keys.jwt_key(key), jwt)
+    Phoenix.Socket.assign(socket, Backoffice.Guardian.Keys.jwt_key(key), jwt)
   end
 
   @doc """
@@ -76,7 +76,7 @@ defmodule Guardian.Phoenix.Socket do
   used inside channels or sockets.
   """
   def set_current_claims(socket, new_claims, key \\ :default) do
-    Phoenix.Socket.assign(socket, Guardian.Keys.claims_key(key), new_claims)
+    Phoenix.Socket.assign(socket, Backoffice.Guardian.Keys.claims_key(key), new_claims)
   end
 
   @doc """
@@ -84,7 +84,7 @@ defmodule Guardian.Phoenix.Socket do
   used inside channels or sockets.
   """
   def set_current_resource(socket, resource, key \\ :default) do
-    Phoenix.Socket.assign(socket, Guardian.Keys.resource_key(key), resource)
+    Phoenix.Socket.assign(socket, Backoffice.Guardian.Keys.resource_key(key), resource)
   end
 
   # deprecated in 1.0
@@ -94,7 +94,7 @@ defmodule Guardian.Phoenix.Socket do
   Fetches the `claims` map that was encoded into the token.
   """
   def current_claims(socket, key \\ :default) do
-    socket.assigns[Guardian.Keys.claims_key(key)]
+    socket.assigns[Backoffice.Guardian.Keys.claims_key(key)]
   end
 
   @doc """
@@ -102,7 +102,7 @@ defmodule Guardian.Phoenix.Socket do
   This is provided as an encoded string.
   """
   def current_token(socket, key \\ :default) do
-    socket.assigns[Guardian.Keys.jwt_key(key)]
+    socket.assigns[Backoffice.Guardian.Keys.jwt_key(key)]
   end
 
   @doc """
@@ -114,7 +114,7 @@ defmodule Guardian.Phoenix.Socket do
     case current_claims(socket, key) do
       nil -> nil
       the_claims ->
-        case Guardian.serializer.from_token(the_claims["sub"]) do
+        case Backoffice.Guardian.serializer.from_token(the_claims["sub"]) do
           {:ok, resource} -> resource
           _ -> nil
         end
@@ -140,9 +140,9 @@ defmodule Guardian.Phoenix.Socket do
   def sign_in(socket, jwt, params, opts \\ []) do
     key = Keyword.get(opts, :key, :default)
 
-    case Guardian.decode_and_verify(jwt, params) do
+    case Backoffice.Guardian.decode_and_verify(jwt, params) do
       {:ok, decoded_claims} ->
-        case Guardian.serializer.from_token(Map.get(decoded_claims, "sub")) do
+        case Backoffice.Guardian.serializer.from_token(Map.get(decoded_claims, "sub")) do
           {:ok, res} ->
             authed_socket = socket
             |> set_current_claims(decoded_claims, key)
@@ -163,13 +163,13 @@ defmodule Guardian.Phoenix.Socket do
   end
 
   @doc """
-  Signout of the socket and also revoke the token. Using with GuardianDB this
+  Signout of the socket and also revoke the token. Using with Backoffice.GuardianDB this
   will render the token useless for future requests.
   """
   def sign_out!(socket, key \\ :default) do
     jwt = current_token(socket)
     the_claims = current_claims(socket)
-    _ = Guardian.revoke!(jwt, the_claims)
+    _ = Backoffice.Guardian.revoke!(jwt, the_claims)
     sign_out(socket, key)
   end
 

@@ -1,11 +1,11 @@
-defmodule Guardian.Plug.EnsurePermissions do
+defmodule Backoffice.Guardian.Plug.EnsurePermissions do
   @moduledoc """
   Use this plug to ensure that there are the
   correct permissions set in the claims found on the connection.
 
   ### Example
 
-      alias Guardian.Plug.EnsurePermissions
+      alias Backoffice.Guardian.Plug.EnsurePermissions
 
       # read and write permissions for the admin set
       plug EnsurePermissions, admin: [:read, :write], handler: SomeMod,
@@ -80,7 +80,7 @@ defmodule Guardian.Plug.EnsurePermissions do
   @doc false
   def call(conn, opts) do
     key = Map.get(opts, :key)
-    case Guardian.Plug.claims(conn, key) do
+    case Backoffice.Guardian.Plug.claims(conn, key) do
       {:ok, claims} ->
         if matches_permissions?(claims, Map.get(opts, :perm_sets)) do
           conn
@@ -99,8 +99,8 @@ defmodule Guardian.Plug.EnsurePermissions do
   defp matches_permission_set?(claims, set) do
     Enum.all?(set, fn({perm_key, required_perms}) ->
       claims
-      |> Guardian.Permissions.from_claims(perm_key)
-      |> Guardian.Permissions.all?(required_perms, perm_key)
+      |> Backoffice.Guardian.Permissions.from_claims(perm_key)
+      |> Backoffice.Guardian.Permissions.all?(required_perms, perm_key)
     end)
   end
 

@@ -1,14 +1,14 @@
-defmodule Guardian.TestGuardianSerializer do
+defmodule Backoffice.Guardian.TestGuardianSerializer do
   @moduledoc false
 
-  @behaviour Guardian.Serializer
+  @behaviour Backoffice.Guardian.Serializer
   def for_token(%{error: :unknown}), do: {:error, "Unknown resource type"}
 
   def for_token(aud), do: {:ok, aud}
   def from_token(aud), do: {:ok, aud}
 end
 
-defmodule Guardian.TestHelper do
+defmodule Backoffice.Guardian.TestHelper do
   @moduledoc false
 
   @default_opts [
@@ -65,7 +65,7 @@ defmodule Guardian.TestHelper do
   def secret_key_function, do: "secret"
 
   def build_jwt(claims) do
-    config = Application.get_env(:guardian, Guardian)
+    config = Application.get_env(:guardian, Backoffice.Guardian)
     algo = hd(Keyword.get(config, :allowed_algos))
     secret = Keyword.get(config, :secret_key)
 
@@ -78,10 +78,10 @@ defmodule Guardian.TestHelper do
   end
 end
 
-defmodule Guardian.Hooks.Test do
+defmodule Backoffice.Guardian.Hooks.Test do
   @moduledoc false
 
-  use Guardian.Hooks
+  use Backoffice.Guardian.Hooks
 
   def before_encode_and_sign("before_encode_and_sign" = resource, "send" = type, claims) do
     send self(), :before_encode_and_sign

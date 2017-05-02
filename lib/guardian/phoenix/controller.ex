@@ -1,11 +1,11 @@
-defmodule Guardian.Phoenix.Controller do
+defmodule Backoffice.Guardian.Phoenix.Controller do
   @moduledoc """
   Provides a simple helper to provide easier access to
   the current user and their claims.
 
       defmodule MyApp.MyController do
         use MyApp.Web, :controller
-        use Guardian.Phoenix.Controller
+        use Backoffice.Guardian.Phoenix.Controller
 
         def index(conn, params, user, claims) do
           # do stuff in here
@@ -17,7 +17,7 @@ defmodule Guardian.Phoenix.Controller do
 
       defmodule MyApp.MyController do
         use MyApp.Web, :controller
-        use Guardian.Phoenix.Controller, key: :secret
+        use Backoffice.Guardian.Phoenix.Controller, key: :secret
 
         def index(conn, params, user, claims) do
         # do stuff with the secret user
@@ -31,7 +31,7 @@ defmodule Guardian.Phoenix.Controller do
   defmacro __using__(opts \\ []) do
     key = Keyword.get(opts, :key, :default)
     quote do
-      import Guardian.Plug
+      import Backoffice.Guardian.Plug
       def action(conn, _opts) do
         apply(
           __MODULE__,
@@ -39,8 +39,8 @@ defmodule Guardian.Phoenix.Controller do
           [
             conn,
             conn.params,
-            Guardian.Plug.current_resource(conn, unquote(key)),
-            Guardian.Plug.claims(conn, unquote(key))
+            Backoffice.Guardian.Plug.current_resource(conn, unquote(key)),
+            Backoffice.Guardian.Plug.claims(conn, unquote(key))
           ]
         )
       end

@@ -1,13 +1,13 @@
-defmodule Guardian.ClaimValidation do
+defmodule Backoffice.Guardian.ClaimValidation do
   @moduledoc """
   Validates claims found in a JWT.
 
-  This provides the default implementation for Guardian and
-  is used in Guardian.JWT
+  This provides the default implementation for Backoffice.Guardian and
+  is used in Backoffice.Guardian.JWT
 
   To use it in your own module
 
-      use Guardian.ClaimValidation
+      use Backoffice.Guardian.ClaimValidation
   """
   @callback validate_claim(String.t, map, map) :: :ok |
                                                         {:error, atom}
@@ -19,9 +19,9 @@ defmodule Guardian.ClaimValidation do
       end
 
       def validate_claim("iss", payload, _) do
-        verify_issuer = Guardian.config(:verify_issuer, false)
+        verify_issuer = Backoffice.Guardian.config(:verify_issuer, false)
         if verify_issuer do
-          if Map.get(payload, "iss") == Guardian.config(:issuer) do
+          if Map.get(payload, "iss") == Backoffice.Guardian.config(:issuer) do
             :ok
           else
             {:error, :invalid_issuer}
@@ -39,7 +39,7 @@ defmodule Guardian.ClaimValidation do
         case Map.get(payload, "nbf") do
           nil -> :ok
           nbf ->
-            if time_within_allowed_drift?(nbf) || nbf < Guardian.Utils.timestamp do
+            if time_within_allowed_drift?(nbf) || nbf < Backoffice.Guardian.Utils.timestamp do
               :ok
             else
               {:error, :token_not_yet_valid}
@@ -55,7 +55,7 @@ defmodule Guardian.ClaimValidation do
         case Map.get(payload, "iat") do
           nil -> :ok
           iat ->
-            if time_within_allowed_drift?(iat) || iat < Guardian.Utils.timestamp do
+            if time_within_allowed_drift?(iat) || iat < Backoffice.Guardian.Utils.timestamp do
               :ok
             else
               {:error, :token_not_yet_valid}
@@ -72,7 +72,7 @@ defmodule Guardian.ClaimValidation do
           nil -> :ok
           _ ->
             exp = payload["exp"]
-            if time_within_allowed_drift?(exp) || exp > Guardian.Utils.timestamp do
+            if time_within_allowed_drift?(exp) || exp > Backoffice.Guardian.Utils.timestamp do
               :ok
             else
               {:error, :token_expired}
@@ -107,8 +107,8 @@ defmodule Guardian.ClaimValidation do
       end
 
       def time_within_allowed_drift?(expected_time) when is_integer(expected_time) do
-        allowed_drift = Guardian.config(:allowed_drift, 0) / 1000
-        diff = abs(expected_time - Guardian.Utils.timestamp)
+        allowed_drift = Backoffice.Guardian.config(:allowed_drift, 0) / 1000
+        diff = abs(expected_time - Backoffice.Guardian.Utils.timestamp)
         diff <= allowed_drift
       end
       def time_within_allowed_drift?(_), do: true

@@ -1,7 +1,7 @@
-defmodule Guardian.Plug.EnsureResource do
+defmodule Backoffice.Guardian.Plug.EnsureResource do
   @moduledoc """
   This plug ensures that the current_resource has been set, usually in
-  Guardian.Plug.LoadResource.
+  Backoffice.Guardian.Plug.LoadResource.
 
   If one is not found, the `no_resource/2` function is invoked with the
   `Plug.Conn.t` object and its params.
@@ -9,12 +9,12 @@ defmodule Guardian.Plug.EnsureResource do
   ## Example
 
       # Will call the no_resource/2 function on your handler
-      plug Guardian.Plug.EnsureResource, handler: SomeModule
+      plug Backoffice.Guardian.Plug.EnsureResource, handler: SomeModule
 
       # look in the :secret location.
-      plug Guardian.Plug.EnsureResource, handler: SomeModule, key: :secret
+      plug Backoffice.Guardian.Plug.EnsureResource, handler: SomeModule, key: :secret
 
-  If the handler option is not passed, `Guardian.Plug.ErrorHandler` will provide
+  If the handler option is not passed, `Backoffice.Guardian.Plug.ErrorHandler` will provide
   the default behavior.
   """
   require Logger
@@ -35,7 +35,7 @@ defmodule Guardian.Plug.EnsureResource do
   def call(conn, opts) do
     key = Map.get(opts, :key, :default)
 
-    case Guardian.Plug.current_resource(conn, key) do
+    case Backoffice.Guardian.Plug.current_resource(conn, key) do
       nil -> handle_error(conn, opts)
       _ -> conn
     end
@@ -58,6 +58,6 @@ defmodule Guardian.Plug.EnsureResource do
     {mod, fun}
   end
   defp build_handler_tuple(_) do
-    {Guardian.Plug.ErrorHandler, :no_resource}
+    {Backoffice.Guardian.Plug.ErrorHandler, :no_resource}
   end
 end

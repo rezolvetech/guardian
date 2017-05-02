@@ -1,11 +1,11 @@
-defmodule Guardian.Plug.EnsureResourceTest do
+defmodule Backoffice.Guardian.Plug.EnsureResourceTest do
   @moduledoc false
   use ExUnit.Case, async: true
   use Plug.Test
   import ExUnit.CaptureLog
-  import Guardian.TestHelper
+  import Backoffice.Guardian.TestHelper
 
-  alias Guardian.Plug.EnsureResource
+  alias Backoffice.Guardian.Plug.EnsureResource
 
   defmodule TestHandler do
     @moduledoc false
@@ -40,17 +40,17 @@ defmodule Guardian.Plug.EnsureResourceTest do
     assert capture_log([level: :warn], fun) =~ ":on_failure is deprecated"
   end
 
-  test "init/1 defaults the handler option to Guardian.Plug.ErrorHandler" do
+  test "init/1 defaults the handler option to Backoffice.Guardian.Plug.ErrorHandler" do
     %{handler: handler_opts} = EnsureResource.init %{}
 
-    assert handler_opts == {Guardian.Plug.ErrorHandler, :no_resource}
+    assert handler_opts == {Backoffice.Guardian.Plug.ErrorHandler, :no_resource}
   end
 
   test "init/1 with default options" do
     options = EnsureResource.init %{}
 
     assert options == %{
-      handler: {Guardian.Plug.ErrorHandler, :no_resource},
+      handler: {Backoffice.Guardian.Plug.ErrorHandler, :no_resource},
       key: :default
     }
   end
@@ -58,7 +58,7 @@ defmodule Guardian.Plug.EnsureResourceTest do
   test "with a resource already set doesn't call no_resource for default key", %{conn: conn} do
     ensured_conn =
       conn
-      |> Guardian.Plug.set_current_resource(:the_resource)
+      |> Backoffice.Guardian.Plug.set_current_resource(:the_resource)
       |> run_plug(EnsureResource, handler: TestHandler)
 
     refute must_have_resource(ensured_conn)
@@ -67,7 +67,7 @@ defmodule Guardian.Plug.EnsureResourceTest do
   test "with a resource already set doesn't call no_resource for key", %{conn: conn} do
     ensured_conn =
       conn
-      |> Guardian.Plug.set_current_resource(:the_resource, :secret)
+      |> Backoffice.Guardian.Plug.set_current_resource(:the_resource, :secret)
       |> run_plug(EnsureResource, handler: TestHandler, key: :secret)
 
     refute must_have_resource(ensured_conn)

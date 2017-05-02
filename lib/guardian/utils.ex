@@ -1,4 +1,4 @@
-defmodule Guardian.Utils do
+defmodule Backoffice.Guardian.Utils do
   @moduledoc false
   @doc false
   def stringify_keys(nil), do: %{}

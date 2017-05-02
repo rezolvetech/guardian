@@ -1,8 +1,8 @@
-defmodule Guardian.Mixfile do
+defmodule Backoffice.Guardian.Mixfile do
   use Mix.Project
 
   @version "0.14.2"
-  @url "https://github.com/ueberauth/guardian"
+  @url "https://github.com/Lazarus404/guardian"
   @maintainers [
     "Daniel Neighman",
     "Sonny Scroggin",
@@ -12,7 +12,7 @@ defmodule Guardian.Mixfile do
 
   def project do
     [
-      name: "Guardian",
+      name: "Guardian Backoffice",
       app: :guardian,
       version: @version,
       elixir: "~> 1.3",

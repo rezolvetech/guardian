@@ -1,17 +1,17 @@
-defmodule Guardian.Plug do
+defmodule Backoffice.Guardian.Plug do
   @moduledoc """
-  Guardian.Plug contains functions that assist with interacting with Guardian
+  Backoffice.Guardian.Plug contains functions that assist with interacting with Backoffice.Guardian
   via Plugs.
 
-  Guardian.Plug is not itself a plug.
+  Backoffice.Guardian.Plug is not itself a plug.
 
   ## Example
 
-      Guardian.Plug.sign_in(conn, user)
-      Guardian.Plug.sign_in(conn, user, :access)
+      Backoffice.Guardian.Plug.sign_in(conn, user)
+      Backoffice.Guardian.Plug.sign_in(conn, user, :access)
 
       # stores this JWT in a different location (keyed by :secret)
-      Guardian.Plug.sign_in(
+      Backoffice.Guardian.Plug.sign_in(
         conn,
         user,
         :access,
@@ -21,19 +21,19 @@ defmodule Guardian.Plug do
 
   ## Example
 
-      Guardian.Plug.sign_out(conn) # sign out all sessions
-      Guardian.Plug.sign_out(conn, :secret) # sign out only the :secret session
+      Backoffice.Guardian.Plug.sign_out(conn) # sign out all sessions
+      Backoffice.Guardian.Plug.sign_out(conn, :secret) # sign out only the :secret session
 
   To sign in to an api action
   (i.e. not store the jwt in the session, just on the conn)
 
   ## Example
 
-      Guardian.Plug.api_sign_in(conn, user)
-      Guardian.Plug.api_sign_in(conn, user, :access)
+      Backoffice.Guardian.Plug.api_sign_in(conn, user)
+      Backoffice.Guardian.Plug.api_sign_in(conn, user, :access)
 
       # Store the JWT on the conn
-      Guardian.Plug.api_sign_in(
+      Backoffice.Guardian.Plug.api_sign_in(
         conn,
         user,
         :access,
@@ -44,17 +44,17 @@ defmodule Guardian.Plug do
         }
       )
 
-  Then use the Guardian.Plug helpers to look up current_token,
+  Then use the Backoffice.Guardian.Plug helpers to look up current_token,
   claims and current_resource.
 
   ## Example
-      Guardian.Plug.current_token(conn)
-      Guardian.Plug.claims(conn)
-      Guardian.Plug.current_resource(conn)
+      Backoffice.Guardian.Plug.current_token(conn)
+      Backoffice.Guardian.Plug.claims(conn)
+      Backoffice.Guardian.Plug.current_resource(conn)
 
   """
 
-  import Guardian.Keys
+  import Backoffice.Guardian.Keys
 
   @doc """
   A simple check to see if a request is authenticated
@@ -106,7 +106,7 @@ defmodule Guardian.Plug do
 
   ### Example
 
-      Guardian.sign_in(conn, user, :access, perms: %{default: [:read, :write]})
+      Backoffice.Guardian.sign_in(conn, user, :access, perms: %{default: [:read, :write]})
 
   """
   @spec sign_in(Plug.Conn.t, any, atom | String.t, map) :: Plug.Conn.t
@@ -114,7 +114,7 @@ defmodule Guardian.Plug do
     the_key = Map.get(new_claims, :key, :default)
     new_claims = Map.delete(new_claims, :key)
 
-    case Guardian.encode_and_sign(object, type, new_claims) do
+    case Backoffice.Guardian.encode_and_sign(object, type, new_claims) do
       {:ok, jwt, full_claims} ->
         conn
         |> Plug.Conn.configure_session(renew: true)
@@ -122,7 +122,7 @@ defmodule Guardian.Plug do
         |> set_current_resource(object, the_key)
         |> set_claims({:ok, full_claims}, the_key)
         |> set_current_token(jwt, the_key)
-        |> Guardian.hooks_module.after_sign_in(the_key)
+        |> Backoffice.Guardian.hooks_module.after_sign_in(the_key)
 
       {:error, reason} ->
         Plug.Conn.put_session(conn, base_key(the_key), {:error, reason})
@@ -134,7 +134,7 @@ defmodule Guardian.Plug do
 
   This function does not store the resource in the session. Instead the
   resource is stored in the `Plug.Conn` and is designed to be accessed with
-  `Guardian.Plug.current_resource/2`.
+  `Backoffice.Guardian.Plug.current_resource/2`.
   """
   @spec api_sign_in(Plug.Conn.t, any) :: Plug.Conn.t
   def api_sign_in(conn, object), do: api_sign_in(conn, object, nil, %{})
@@ -144,7 +144,7 @@ defmodule Guardian.Plug do
 
   This function does not store the resource in the session. Instead the
   resource is stored in the `Plug.Conn` and is designed to be accessed with
-  `Guardian.Plug.current_resource/2`.
+  `Backoffice.Guardian.Plug.current_resource/2`.
 
   By specifying the 'type' of the token, you're setting the typ field in the
   JWT.
@@ -168,7 +168,7 @@ defmodule Guardian.Plug do
 
   ### Example
 
-      Guardian.Plug.api_sign_in(
+      Backoffice.Guardian.Plug.api_sign_in(
         conn,
         user,
         :token,
@@ -180,13 +180,13 @@ defmodule Guardian.Plug do
     the_key = Map.get(new_claims, :key, :default)
     new_claims = Map.delete(new_claims, :key)
 
-    case Guardian.encode_and_sign(object, type, new_claims) do
+    case Backoffice.Guardian.encode_and_sign(object, type, new_claims) do
       {:ok, jwt, full_claims} ->
         conn
         |> set_current_resource(object, the_key)
         |> set_claims({:ok, full_claims}, the_key)
         |> set_current_token(jwt, the_key)
-        |> Guardian.hooks_module.after_sign_in(the_key)
+        |> Backoffice.Guardian.hooks_module.after_sign_in(the_key)
 
       {:error, reason} ->
         set_claims(conn, {:error, reason}, the_key)
@@ -202,7 +202,7 @@ defmodule Guardian.Plug do
   @spec sign_out(Plug.Conn.t) :: Plug.Conn.t
   def sign_out(conn, the_key \\ :all) do
     conn
-    |> Guardian.hooks_module.before_sign_out(the_key)
+    |> Backoffice.Guardian.hooks_module.before_sign_out(the_key)
     |> sign_out_via_key(the_key)
   end
 
@@ -308,7 +308,7 @@ defmodule Guardian.Plug do
   defp session_locations(conn) do
     conn.private.plug_session
     |> Map.keys
-    |> Enum.map(&Guardian.Keys.key_from_other/1)
+    |> Enum.map(&Backoffice.Guardian.Keys.key_from_other/1)
     |> Enum.filter(&(&1 != nil))
   end
 
@@ -323,7 +323,7 @@ defmodule Guardian.Plug do
     case Plug.Conn.get_session(conn, base_key(key)) do
       nil -> conn
       jwt ->
-        _ = Guardian.revoke!(jwt)
+        _ = Backoffice.Guardian.revoke!(jwt)
         conn
     end
   end

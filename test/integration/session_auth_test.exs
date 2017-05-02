@@ -1,17 +1,17 @@
-defmodule Guardian.Integration.SessionAuthTest do
+defmodule Backoffice.Guardian.Integration.SessionAuthTest do
   @moduledoc false
   use ExUnit.Case
   use Plug.Test
 
-  import Guardian.TestHelper
+  import Backoffice.Guardian.TestHelper
 
-  alias Guardian.Plug.LoadResource
-  alias Guardian.Plug.VerifySession
-  alias Guardian.Claims
+  alias Backoffice.Guardian.Plug.LoadResource
+  alias Backoffice.Guardian.Plug.VerifySession
+  alias Backoffice.Guardian.Claims
 
   defmodule TestSerializer do
     @moduledoc false
-    @behaviour Guardian.Serializer
+    @behaviour Backoffice.Guardian.Serializer
 
     def from_token("Company:" <> id), do: {:ok, id}
     def for_token(_), do: {:ok, nil}
@@ -26,12 +26,12 @@ defmodule Guardian.Integration.SessionAuthTest do
     conn =
       conn
       |> conn_with_fetched_session
-      |> put_session(Guardian.Keys.base_key(:default), jwt)
+      |> put_session(Backoffice.Guardian.Keys.base_key(:default), jwt)
       |> run_plug(VerifySession)
       |> run_plug(LoadResource, serializer: TestSerializer)
 
-    assert Guardian.Plug.current_resource(conn) == "42"
-    assert Guardian.Plug.claims(conn) == {:ok, claims}
-    assert Guardian.Plug.current_token(conn) == jwt
+    assert Backoffice.Guardian.Plug.current_resource(conn) == "42"
+    assert Backoffice.Guardian.Plug.claims(conn) == {:ok, claims}
+    assert Backoffice.Guardian.Plug.current_token(conn) == jwt
   end
 end

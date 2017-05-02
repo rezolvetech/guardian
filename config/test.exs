@@ -1,6 +1,6 @@
 use Mix.Config
 
-config :guardian, Guardian,
+config :guardian, Backoffice.Guardian,
       issuer: "MyApp",
       allowed_algos: ["HS512", "ES512"],
       token_ttl: %{
@@ -11,8 +11,8 @@ config :guardian, Guardian,
       allowed_drift: 2000,
       verify_issuer: true,
       secret_key: "woiuerojksldkjoierwoiejrlskjdf",
-      serializer: Guardian.TestGuardianSerializer,
-      hooks: Guardian.Hooks.Test,
+      serializer: Backoffice.Guardian.TestGuardianSerializer,
+      hooks: Backoffice.Guardian.Hooks.Test,
       system_foo: {:system, "FOO"},
       permissions: %{
         default: [:read, :write, :update, :delete],

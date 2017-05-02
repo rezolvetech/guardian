@@ -1,9 +1,9 @@
-defmodule Guardian.Plug.EnsureNotAuthenticatedTest do
+defmodule Backoffice.Guardian.Plug.EnsureNotAuthenticatedTest do
   @moduledoc false
   use ExUnit.Case, async: true
   use Plug.Test
 
-  alias Guardian.Plug.EnsureNotAuthenticated
+  alias Backoffice.Guardian.Plug.EnsureNotAuthenticated
 
   defmodule TestHandler do
     @moduledoc false
@@ -21,10 +21,10 @@ defmodule Guardian.Plug.EnsureNotAuthenticatedTest do
     assert handler_opts == {TestHandler, :already_authenticated}
   end
 
-  test "init/1 defaults the handler option to Guardian.Plug.ErrorHandler" do
+  test "init/1 defaults the handler option to Backoffice.Guardian.Plug.ErrorHandler" do
     %{handler: handler_opts} = EnsureNotAuthenticated.init %{}
 
-    assert handler_opts == {Guardian.Plug.ErrorHandler, :already_authenticated}
+    assert handler_opts == {Backoffice.Guardian.Plug.ErrorHandler, :already_authenticated}
   end
 
   test "init/1 with default options" do
@@ -32,14 +32,14 @@ defmodule Guardian.Plug.EnsureNotAuthenticatedTest do
 
     assert options == %{
       claims: %{},
-      handler: {Guardian.Plug.ErrorHandler, :already_authenticated},
+      handler: {Backoffice.Guardian.Plug.ErrorHandler, :already_authenticated},
       key: :default
     }
   end
 
   test "it validates claims and fails if the claims do match" do
     claims = %{"typ" => "access", "sub" => "user1"}
-    conn = :get |> conn("/foo") |> Guardian.Plug.set_claims({:ok, claims})
+    conn = :get |> conn("/foo") |> Backoffice.Guardian.Plug.set_claims({:ok, claims})
     opts = EnsureNotAuthenticated.init(handler: TestHandler, typ: "access")
     ensured_conn = EnsureNotAuthenticated.call(conn, opts)
     assert already_authenticated?(ensured_conn)
@@ -47,7 +47,7 @@ defmodule Guardian.Plug.EnsureNotAuthenticatedTest do
 
   test "it validates claims and calls through if the claims are not ok" do
     claims = %{"aud" => "oauth", "sub" => "user1"}
-    conn = :get |> conn("/foo") |> Guardian.Plug.set_claims({:ok, claims})
+    conn = :get |> conn("/foo") |> Backoffice.Guardian.Plug.set_claims({:ok, claims})
     opts = EnsureNotAuthenticated.init(handler: TestHandler, typ: "access")
     ensured_conn = EnsureNotAuthenticated.call(conn, opts)
     refute already_authenticated?(ensured_conn)
@@ -55,7 +55,7 @@ defmodule Guardian.Plug.EnsureNotAuthenticatedTest do
 
   test "call authenticated when there's a session with default key" do
     claims = %{"typ" => "access", "sub" => "user1"}
-    conn = :get |> conn("/foo") |> Guardian.Plug.set_claims({:ok, claims})
+    conn = :get |> conn("/foo") |> Backoffice.Guardian.Plug.set_claims({:ok, claims})
     opts = EnsureNotAuthenticated.init(handler: TestHandler)
     ensured_conn = EnsureNotAuthenticated.call(conn, opts)
     assert already_authenticated?(ensured_conn)
@@ -65,7 +65,7 @@ defmodule Guardian.Plug.EnsureNotAuthenticatedTest do
     claims = %{"typ" => "access", "sub" => "user1"}
     conn = :get
             |> conn("/foo")
-            |> Guardian.Plug.set_claims({:ok, claims}, :secret)
+            |> Backoffice.Guardian.Plug.set_claims({:ok, claims}, :secret)
     opts = EnsureNotAuthenticated.init(handler: TestHandler, key: :secret)
     ensured_conn = EnsureNotAuthenticated.call(conn, opts)
     assert already_authenticated?(ensured_conn)

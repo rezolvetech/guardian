@@ -1,9 +1,9 @@
-defmodule Guardian.Claims do
+defmodule Backoffice.Guardian.Claims do
   @moduledoc false
-  import Guardian.Utils
+  import Backoffice.Guardian.Utils
 
   @doc false
-  def app_claims, do: %{"iss" => Guardian.issuer} |> iat |> jti
+  def app_claims, do: %{"iss" => Backoffice.Guardian.issuer} |> iat |> jti
 
   @doc false
   def app_claims(existing_claims) do
@@ -21,21 +21,21 @@ defmodule Guardian.Claims do
       Map.put(
         acc,
         to_string(key),
-        Guardian.Permissions.to_value(list, key)
+        Backoffice.Guardian.Permissions.to_value(list, key)
       )
     end)
     Map.put(claims, "pem", perms)
   end
 
   @doc false
-  def typ(claims, nil), do: typ(claims, Guardian.default_token_type)
+  def typ(claims, nil), do: typ(claims, Backoffice.Guardian.default_token_type)
   @doc false
   def typ(claims, type) when is_atom(type), do: typ(claims, to_string(type))
   @doc false
   def typ(claims, type), do: Map.put(claims, "typ", type)
 
   @doc false
-  def aud(claims, nil), do: aud(claims, Guardian.config(:issuer))
+  def aud(claims, nil), do: aud(claims, Backoffice.Guardian.config(:issuer))
   @doc false
   def aud(claims, audience) when is_atom(audience) do
     aud(claims, to_string(audience))
@@ -81,19 +81,19 @@ defmodule Guardian.Claims do
 
   @doc false
   def ttl(claims = %{"typ" => token_typ}) do
-    ttl_map = Guardian.config(:token_ttl, %{})
+    ttl_map = Backoffice.Guardian.config(:token_ttl, %{})
     case ttl_map |> Map.fetch(token_typ) do
       {:ok, token_ttl} ->  ttl(claims, token_ttl)
-      :error -> ttl(claims, Guardian.config(:ttl, {1_000_000_000, :seconds}))
+      :error -> ttl(claims, Backoffice.Guardian.config(:ttl, {1_000_000_000, :seconds}))
     end
   end
 
   @doc false
   def ttl(claims) do
-    ttl_map = Guardian.config(:token_ttl, %{})
+    ttl_map = Backoffice.Guardian.config(:token_ttl, %{})
     case ttl_map |> Map.fetch("access") do
       {:ok, token_ttl} ->  ttl(claims, token_ttl)
-      :error -> ttl(claims, Guardian.config(:ttl, {1_000_000_000, :seconds}))
+      :error -> ttl(claims, Backoffice.Guardian.config(:ttl, {1_000_000_000, :seconds}))
     end
   end
 

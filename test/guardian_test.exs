@@ -1,4 +1,4 @@
-defmodule GuardianTest do
+defmodule Backoffice.GuardianTest do
   @moduledoc false
 
   use ExUnit.Case, async: true
@@ -7,14 +7,14 @@ defmodule GuardianTest do
     claims = %{
       "aud" => "User:1",
       "typ" => "access",
-      "exp" => Guardian.Utils.timestamp + 10_000,
-      "iat" => Guardian.Utils.timestamp,
+      "exp" => Backoffice.Guardian.Utils.timestamp + 10_000,
+      "iat" => Backoffice.Guardian.Utils.timestamp,
       "iss" => "MyApp",
       "sub" => "User:1",
       "something_else" => "foo"
     }
 
-    config = Application.get_env(:guardian, Guardian)
+    config = Application.get_env(:guardian, Backoffice.Guardian)
     algo = hd(Keyword.get(config, :allowed_algos))
     secret = Keyword.get(config, :secret_key)
 
@@ -49,59 +49,59 @@ defmodule GuardianTest do
   end
 
   test "config with a value" do
-    assert Guardian.config(:issuer) == "MyApp"
+    assert Backoffice.Guardian.config(:issuer) == "MyApp"
   end
 
   test "config with no value" do
-    assert Guardian.config(:not_a_thing) == nil
+    assert Backoffice.Guardian.config(:not_a_thing) == nil
   end
 
   test "config with a default value" do
-    assert Guardian.config(:not_a_thing, :this_is_a_thing) == :this_is_a_thing
+    assert Backoffice.Guardian.config(:not_a_thing, :this_is_a_thing) == :this_is_a_thing
   end
 
   test "config with a system value" do
-    assert Guardian.config(:system_foo) == nil
+    assert Backoffice.Guardian.config(:system_foo) == nil
     System.put_env("FOO", "foo")
-    assert Guardian.config(:system_foo) == "foo"
+    assert Backoffice.Guardian.config(:system_foo) == "foo"
   end
 
   test "it fetches the currently configured serializer" do
-    assert Guardian.serializer == Guardian.TestGuardianSerializer
+    assert Backoffice.Guardian.serializer == Backoffice.Guardian.TestGuardianSerializer
   end
 
   test "it returns the current app name" do
-    assert Guardian.issuer == "MyApp"
+    assert Backoffice.Guardian.issuer == "MyApp"
   end
 
   test "it verifies the jwt", context do
-    assert Guardian.decode_and_verify(context.jwt) == {:ok, context.claims}
+    assert Backoffice.Guardian.decode_and_verify(context.jwt) == {:ok, context.claims}
   end
 
   test "it verifies the jwt with custom secret %JOSE.JWK{} struct", context do
     secret = context.es512.jwk
-    assert Guardian.decode_and_verify(context.es512.jwt, %{secret: secret}) == {:ok, context.claims}
+    assert Backoffice.Guardian.decode_and_verify(context.es512.jwt, %{secret: secret}) == {:ok, context.claims}
   end
 
   test "it verifies the jwt with custom secret tuple", context do
-    secret = {Guardian.TestHelper, :secret_key_function, [context.es512.jwk]}
-    assert Guardian.decode_and_verify(context.es512.jwt, %{secret: secret}) == {:ok, context.claims}
+    secret = {Backoffice.Guardian.TestHelper, :secret_key_function, [context.es512.jwk]}
+    assert Backoffice.Guardian.decode_and_verify(context.es512.jwt, %{secret: secret}) == {:ok, context.claims}
   end
 
   test "it verifies the jwt with custom secret map", context do
     secret = context.es512.jwk |> JOSE.JWK.to_map |> elem(1)
-    assert Guardian.decode_and_verify(context.es512.jwt, %{secret: secret}) == {:ok, context.claims}
+    assert Backoffice.Guardian.decode_and_verify(context.es512.jwt, %{secret: secret}) == {:ok, context.claims}
   end
 
   test "verifies the issuer", context do
-    assert Guardian.decode_and_verify(context.jwt) == {:ok, context.claims}
+    assert Backoffice.Guardian.decode_and_verify(context.jwt) == {:ok, context.claims}
   end
 
   test "fails if the issuer is not correct", context do
     claims = %{
       typ: "access",
-      exp: Guardian.Utils.timestamp + 10_000,
-      iat: Guardian.Utils.timestamp,
+      exp: Backoffice.Guardian.Utils.timestamp + 10_000,
+      iat: Backoffice.Guardian.Utils.timestamp,
       iss: "not the issuer",
       sub: "User:1"
     }
@@ -110,20 +110,20 @@ defmodule GuardianTest do
                   |> JOSE.JWT.sign(context.jose_jws, claims)
                   |> JOSE.JWS.compact
 
-    assert Guardian.decode_and_verify(jwt) == {:error, :invalid_issuer}
+    assert Backoffice.Guardian.decode_and_verify(jwt) == {:error, :invalid_issuer}
   end
 
   test "fails if the expiry has passed", context do
-    claims = Map.put(context.claims, "exp", Guardian.Utils.timestamp - 10)
+    claims = Map.put(context.claims, "exp", Backoffice.Guardian.Utils.timestamp - 10)
     {_, jwt} = context.jose_jwk
                   |> JOSE.JWT.sign(context.jose_jws, claims)
                   |> JOSE.JWS.compact
 
-    assert Guardian.decode_and_verify(jwt) == {:error, :token_expired}
+    assert Backoffice.Guardian.decode_and_verify(jwt) == {:error, :token_expired}
   end
 
   test "it is invalid if the typ is incorrect", context do
-    response = Guardian.decode_and_verify(
+    response = Backoffice.Guardian.decode_and_verify(
       context.jwt,
       %{typ: "something_else"}
     )
@@ -132,160 +132,160 @@ defmodule GuardianTest do
   end
 
   test "verify! with a jwt", context do
-    assert Guardian.decode_and_verify!(context.jwt) == context.claims
+    assert Backoffice.Guardian.decode_and_verify!(context.jwt) == context.claims
   end
 
   test "verify! with a bad token", context do
-    claims = Map.put(context.claims, "exp", Guardian.Utils.timestamp - 10)
+    claims = Map.put(context.claims, "exp", Backoffice.Guardian.Utils.timestamp - 10)
     {_, jwt} = context.jose_jwk
                   |> JOSE.JWT.sign(context.jose_jws, claims)
                   |> JOSE.JWS.compact
 
-    assert_raise(RuntimeError, fn() -> Guardian.decode_and_verify!(jwt) end)
+    assert_raise(RuntimeError, fn() -> Backoffice.Guardian.decode_and_verify!(jwt) end)
   end
 
   test "serializer" do
-    assert Guardian.serializer == Guardian.TestGuardianSerializer
+    assert Backoffice.Guardian.serializer == Backoffice.Guardian.TestGuardianSerializer
   end
 
   test "encode_and_sign(object)" do
-    {:ok, jwt, _} = Guardian.encode_and_sign("thinger")
+    {:ok, jwt, _} = Backoffice.Guardian.encode_and_sign("thinger")
 
-    {:ok, claims} = Guardian.decode_and_verify(jwt)
+    {:ok, claims} = Backoffice.Guardian.decode_and_verify(jwt)
     assert claims["typ"] == "access"
     assert claims["aud"] == "thinger"
     assert claims["sub"] == "thinger"
     assert claims["iat"]
     assert claims["exp"] > claims["iat"]
-    assert claims["iss"] == Guardian.issuer
+    assert claims["iss"] == Backoffice.Guardian.issuer
   end
 
   test "encode_and_sign(object, audience)" do
-    {:ok, jwt, _} = Guardian.encode_and_sign("thinger", "my_type")
+    {:ok, jwt, _} = Backoffice.Guardian.encode_and_sign("thinger", "my_type")
 
-    {:ok, claims} = Guardian.decode_and_verify(jwt)
+    {:ok, claims} = Backoffice.Guardian.decode_and_verify(jwt)
     assert claims["typ"] == "my_type"
     assert claims["aud"] == "thinger"
     assert claims["sub"] == "thinger"
     assert claims["iat"]
     assert claims["exp"] > claims["iat"]
-    assert claims["iss"] == Guardian.issuer
+    assert claims["iss"] == Backoffice.Guardian.issuer
   end
 
   test "encode_and_sign(object, type, claims)" do
-    {:ok, jwt, _} = Guardian.encode_and_sign(
+    {:ok, jwt, _} = Backoffice.Guardian.encode_and_sign(
       "thinger",
       "my_type",
       some: "thing"
     )
 
-    {:ok, claims} = Guardian.decode_and_verify(jwt)
+    {:ok, claims} = Backoffice.Guardian.decode_and_verify(jwt)
     assert claims["typ"] == "my_type"
     assert claims["aud"] == "thinger"
     assert claims["sub"] == "thinger"
     assert claims["iat"]
     assert claims["exp"] > claims["iat"]
-    assert claims["iss"] == Guardian.issuer
+    assert claims["iss"] == Backoffice.Guardian.issuer
     assert claims["some"] == "thing"
   end
 
   test "encode_and_sign(object, aud) with ttl" do
-    {:ok, jwt, _} = Guardian.encode_and_sign(
+    {:ok, jwt, _} = Backoffice.Guardian.encode_and_sign(
       "thinger",
       "my_type",
       ttl: {5, :days}
     )
 
-    {:ok, claims} = Guardian.decode_and_verify(jwt)
+    {:ok, claims} = Backoffice.Guardian.decode_and_verify(jwt)
     assert claims["exp"] == claims["iat"] + 5 * 24 * 60 * 60
   end
 
   test "encode_and_sign(object, aud) with ttl in claims" do
-    claims = Guardian.Claims.app_claims
-    |> Guardian.Claims.ttl({5, :days})
+    claims = Backoffice.Guardian.Claims.app_claims
+    |> Backoffice.Guardian.Claims.ttl({5, :days})
 
-    {:ok, jwt, _} = Guardian.encode_and_sign("thinger", "my_type", claims)
+    {:ok, jwt, _} = Backoffice.Guardian.encode_and_sign("thinger", "my_type", claims)
 
-    {:ok, claims} = Guardian.decode_and_verify(jwt)
+    {:ok, claims} = Backoffice.Guardian.decode_and_verify(jwt)
     assert claims["exp"] == claims["iat"] + 5 * 24 * 60 * 60
   end
 
   test "encode_and_sign(object, aud) with ttl, number and period as binaries" do
-    {:ok, jwt, _} = Guardian.encode_and_sign(
+    {:ok, jwt, _} = Backoffice.Guardian.encode_and_sign(
       "thinger",
       "my_type",
       ttl: {"5", "days"}
     )
 
-    {:ok, claims} = Guardian.decode_and_verify(jwt)
+    {:ok, claims} = Backoffice.Guardian.decode_and_verify(jwt)
     assert claims["exp"] == claims["iat"] + 5 * 24 * 60 * 60
   end
 
   test "encode_and_sign(object, aud) with ttl in claims, number and period as binaries" do
-    claims = Guardian.Claims.app_claims
-    |> Guardian.Claims.ttl({"5", "days"})
+    claims = Backoffice.Guardian.Claims.app_claims
+    |> Backoffice.Guardian.Claims.ttl({"5", "days"})
 
-    {:ok, jwt, _} = Guardian.encode_and_sign("thinger", "my_type", claims)
+    {:ok, jwt, _} = Backoffice.Guardian.encode_and_sign("thinger", "my_type", claims)
 
-    {:ok, claims} = Guardian.decode_and_verify(jwt)
+    {:ok, claims} = Backoffice.Guardian.decode_and_verify(jwt)
     assert claims["exp"] == claims["iat"] + 5 * 24 * 60 * 60
   end
 
   test "encode_and_sign(object, aud) with exp and iat" do
-    iat = Guardian.Utils.timestamp - 100
-    exp = Guardian.Utils.timestamp + 100
+    iat = Backoffice.Guardian.Utils.timestamp - 100
+    exp = Backoffice.Guardian.Utils.timestamp + 100
 
-    {:ok, jwt, _} = Guardian.encode_and_sign(
+    {:ok, jwt, _} = Backoffice.Guardian.encode_and_sign(
       "thinger",
       "my_type",
       %{"exp" => exp, "iat" => iat})
 
-    {:ok, claims} = Guardian.decode_and_verify(jwt)
+    {:ok, claims} = Backoffice.Guardian.decode_and_verify(jwt)
     assert claims["exp"] == exp
     assert claims["iat"] == iat
   end
 
   test "encode_and_sign with a serializer error" do
-    {:error, reason} = Guardian.encode_and_sign(%{error: :unknown})
+    {:error, reason} = Backoffice.Guardian.encode_and_sign(%{error: :unknown})
     assert reason
   end
 
   test "encode_and_sign calls before_encode_and_sign hook" do
-    {:ok, _, _} = Guardian.encode_and_sign("before_encode_and_sign", "send")
+    {:ok, _, _} = Backoffice.Guardian.encode_and_sign("before_encode_and_sign", "send")
     assert_received :before_encode_and_sign
   end
 
   test "encode_and_sign calls before_encode_and_sign hook w/ error" do
-    {:error, reason} = Guardian.encode_and_sign("before_encode_and_sign", "error")
+    {:error, reason} = Backoffice.Guardian.encode_and_sign("before_encode_and_sign", "error")
     assert reason == "before_encode_and_sign_error"
   end
 
   test "encode_and_sign calls after_encode_and_sign hook" do
-    {:ok, _, _} = Guardian.encode_and_sign("after_encode_and_sign", "send")
+    {:ok, _, _} = Backoffice.Guardian.encode_and_sign("after_encode_and_sign", "send")
     assert_received :after_encode_and_sign
   end
 
   test "encode_and_sign calls after_encode_and_sign hook w/ error" do
-    {:error, reason} = Guardian.encode_and_sign("after_encode_and_sign", "error")
+    {:error, reason} = Backoffice.Guardian.encode_and_sign("after_encode_and_sign", "error")
     assert reason == "after_encode_and_sign_error"
   end
 
   test "encode_and_sign with custom secret" do
     secret = "ABCDEF"
-    {:ok, jwt, _} = Guardian.encode_and_sign(
+    {:ok, jwt, _} = Backoffice.Guardian.encode_and_sign(
       "thinger",
       "my_type",
       some: "thing",
       secret: secret
     )
 
-    {:error, :invalid_token} = Guardian.decode_and_verify(jwt)
-    {:ok, _claims} = Guardian.decode_and_verify(jwt, %{secret: secret})
+    {:error, :invalid_token} = Backoffice.Guardian.decode_and_verify(jwt)
+    {:ok, _claims} = Backoffice.Guardian.decode_and_verify(jwt, %{secret: secret})
   end
 
   test "encode_and_sign custom headers and custom secret %JOSE.JWK{} struct", context do
     secret = context.es512.jwk
-    {:ok, jwt, _} = Guardian.encode_and_sign(
+    {:ok, jwt, _} = Backoffice.Guardian.encode_and_sign(
       "thinger",
       "my_type",
       headers: %{"alg" => "ES512"},
@@ -293,26 +293,26 @@ defmodule GuardianTest do
       secret: secret
     )
 
-    {:error, :invalid_token} = Guardian.decode_and_verify(jwt)
-    {:ok, _claims} = Guardian.decode_and_verify(jwt, %{secret: secret})
+    {:error, :invalid_token} = Backoffice.Guardian.decode_and_verify(jwt)
+    {:ok, _claims} = Backoffice.Guardian.decode_and_verify(jwt, %{secret: secret})
   end
 
   test "encode_and_sign custom headers and custom secret function without args" do
-    secret = {Guardian.TestHelper, :secret_key_function}
-    {:ok, jwt, _} = Guardian.encode_and_sign(
+    secret = {Backoffice.Guardian.TestHelper, :secret_key_function}
+    {:ok, jwt, _} = Backoffice.Guardian.encode_and_sign(
       "thinger",
       "my_type",
       some: "thing",
       secret: secret
     )
 
-    {:error, :invalid_token} = Guardian.decode_and_verify(jwt)
-    {:ok, _claims} = Guardian.decode_and_verify(jwt, %{secret: secret})
+    {:error, :invalid_token} = Backoffice.Guardian.decode_and_verify(jwt)
+    {:ok, _claims} = Backoffice.Guardian.decode_and_verify(jwt, %{secret: secret})
   end
 
   test "encode_and_sign custom headers and custom secret function with args", context do
-    secret = {Guardian.TestHelper, :secret_key_function, [context.es512.jwk]}
-    {:ok, jwt, _} = Guardian.encode_and_sign(
+    secret = {Backoffice.Guardian.TestHelper, :secret_key_function, [context.es512.jwk]}
+    {:ok, jwt, _} = Backoffice.Guardian.encode_and_sign(
       "thinger",
       "my_type",
       headers: %{"alg" => "ES512"},
@@ -320,13 +320,13 @@ defmodule GuardianTest do
       secret: secret
     )
 
-    {:error, :invalid_token} = Guardian.decode_and_verify(jwt)
-    {:ok, _claims} = Guardian.decode_and_verify(jwt, %{secret: secret})
+    {:error, :invalid_token} = Backoffice.Guardian.decode_and_verify(jwt)
+    {:ok, _claims} = Backoffice.Guardian.decode_and_verify(jwt, %{secret: secret})
   end
 
   test "encode_and_sign custom headers and custom secret map", context do
     secret = context.es512.jwk |> JOSE.JWK.to_map |> elem(1)
-    {:ok, jwt, _} = Guardian.encode_and_sign(
+    {:ok, jwt, _} = Backoffice.Guardian.encode_and_sign(
       "thinger",
       "my_type",
       headers: %{"alg" => "ES512"},
@@ -334,13 +334,13 @@ defmodule GuardianTest do
       secret: secret
     )
 
-    {:error, :invalid_token} = Guardian.decode_and_verify(jwt)
-    {:ok, _claims} = Guardian.decode_and_verify(jwt, %{secret: secret})
+    {:error, :invalid_token} = Backoffice.Guardian.decode_and_verify(jwt)
+    {:ok, _claims} = Backoffice.Guardian.decode_and_verify(jwt, %{secret: secret})
   end
 
   test "peeking at the headers" do
     secret = "ABCDEF"
-    {:ok, jwt, _} = Guardian.encode_and_sign(
+    {:ok, jwt, _} = Backoffice.Guardian.encode_and_sign(
       "thinger",
       "my_type",
       some: "thing",
@@ -348,13 +348,13 @@ defmodule GuardianTest do
       headers: %{"foo" => "bar"}
     )
 
-    header = Guardian.peek_header(jwt)
+    header = Backoffice.Guardian.peek_header(jwt)
     assert header["foo"] == "bar"
   end
 
   test "peeking at the payload" do
     secret = "ABCDEF"
-    {:ok, jwt, _} = Guardian.encode_and_sign(
+    {:ok, jwt, _} = Backoffice.Guardian.encode_and_sign(
       "thinger",
       "my_type",
       some: "thing",
@@ -362,33 +362,33 @@ defmodule GuardianTest do
       headers: %{"foo" => "bar"}
     )
 
-    header = Guardian.peek_claims(jwt)
+    header = Backoffice.Guardian.peek_claims(jwt)
     assert header["some"] == "thing"
   end
 
   test "revoke" do
-    {:ok, jwt, claims} = Guardian.encode_and_sign(
+    {:ok, jwt, claims} = Backoffice.Guardian.encode_and_sign(
       "thinger",
       "my_type",
       some: "thing"
     )
 
-    assert Guardian.revoke!(jwt, claims) == :ok
+    assert Backoffice.Guardian.revoke!(jwt, claims) == :ok
   end
 
   test "refresh" do
 
-    old_claims = Guardian.Claims.app_claims
-                 |> Map.put("iat", Guardian.Utils.timestamp - 100)
-                 |> Map.put("exp", Guardian.Utils.timestamp + 100)
+    old_claims = Backoffice.Guardian.Claims.app_claims
+                 |> Map.put("iat", Backoffice.Guardian.Utils.timestamp - 100)
+                 |> Map.put("exp", Backoffice.Guardian.Utils.timestamp + 100)
 
-    {:ok, jwt, claims} = Guardian.encode_and_sign(
+    {:ok, jwt, claims} = Backoffice.Guardian.encode_and_sign(
       "thinger",
       "my_type",
       old_claims
     )
 
-    {:ok, new_jwt, new_claims} = Guardian.refresh!(jwt, claims)
+    {:ok, new_jwt, new_claims} = Backoffice.Guardian.refresh!(jwt, claims)
 
     refute jwt == new_jwt
 
@@ -403,9 +403,9 @@ defmodule GuardianTest do
   end
 
   test "exchange" do
-      {:ok, jwt, claims} = Guardian.encode_and_sign("thinger", "refresh")
+      {:ok, jwt, claims} = Backoffice.Guardian.encode_and_sign("thinger", "refresh")
 
-      {:ok, new_jwt, new_claims} = Guardian.exchange(jwt, "refresh", "access")
+      {:ok, new_jwt, new_claims} = Backoffice.Guardian.exchange(jwt, "refresh", "access")
 
       refute jwt == new_jwt
       refute Map.get(new_claims, "jti") == nil
@@ -417,9 +417,9 @@ defmodule GuardianTest do
     end
 
     test "exchange with claims" do
-      {:ok, jwt, claims} = Guardian.encode_and_sign("thinger", "refresh", some: "thing")
+      {:ok, jwt, claims} = Backoffice.Guardian.encode_and_sign("thinger", "refresh", some: "thing")
 
-      {:ok, new_jwt, new_claims} = Guardian.exchange(jwt, "refresh", "access")
+      {:ok, new_jwt, new_claims} = Backoffice.Guardian.exchange(jwt, "refresh", "access")
 
       refute jwt == new_jwt
       refute Map.get(new_claims, "jti") == nil
@@ -432,9 +432,9 @@ defmodule GuardianTest do
     end
 
     test "exchange with list of from typs" do
-      {:ok, jwt, claims} = Guardian.encode_and_sign("thinger", "rememberMe")
+      {:ok, jwt, claims} = Backoffice.Guardian.encode_and_sign("thinger", "rememberMe")
 
-      {:ok, new_jwt, new_claims} = Guardian.exchange(jwt, ["refresh", "rememberMe"], "access")
+      {:ok, new_jwt, new_claims} = Backoffice.Guardian.exchange(jwt, ["refresh", "rememberMe"], "access")
 
       refute jwt == new_jwt
       refute Map.get(new_claims, "jti") == nil
@@ -446,9 +446,9 @@ defmodule GuardianTest do
     end
 
     test "exchange with atom typ" do
-      {:ok, jwt, claims} = Guardian.encode_and_sign("thinger", "refresh")
+      {:ok, jwt, claims} = Backoffice.Guardian.encode_and_sign("thinger", "refresh")
 
-      {:ok, new_jwt, new_claims} = Guardian.exchange(jwt, :refresh, :access)
+      {:ok, new_jwt, new_claims} = Backoffice.Guardian.exchange(jwt, :refresh, :access)
 
       refute jwt == new_jwt
       refute Map.get(new_claims, "jti") == nil
@@ -460,8 +460,8 @@ defmodule GuardianTest do
     end
 
     test "exchange with a wrong from typ" do
-      {:ok, jwt, _claims} = Guardian.encode_and_sign("thinger")
-      assert  Guardian.exchange(jwt, "refresh", "access") == {:error, :incorrect_token_type}
+      {:ok, jwt, _claims} = Backoffice.Guardian.encode_and_sign("thinger")
+      assert  Backoffice.Guardian.exchange(jwt, "refresh", "access") == {:error, :incorrect_token_type}
   end
 
 end

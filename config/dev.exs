@@ -1,6 +1,6 @@
 use Mix.Config
 
-config :guardian, Guardian,
+config :guardian, Backoffice.Guardian,
       issuer: "MyApp",
       ttl: { 1, :days },
       token_ttl: %{
@@ -9,4 +9,4 @@ config :guardian, Guardian,
       },
       verify_issuer: true,
       secret_key: "woiuerojksldkjoierwoiejrlskjdf",
-      serializer: Guardian.TestGuardianSerializer
+      serializer: Backoffice.Guardian.TestGuardianSerializer

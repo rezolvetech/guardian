@@ -1,4 +1,4 @@
-defmodule Guardian.Plug.VerifyHeader do
+defmodule Backoffice.Guardian.Plug.VerifyHeader do
   @moduledoc """
   Use this plug to verify a token contained in the header.
 
@@ -8,14 +8,14 @@ defmodule Guardian.Plug.VerifyHeader do
 
   ## Example
 
-      plug Guardian.Plug.VerifyHeader
+      plug Backoffice.Guardian.Plug.VerifyHeader
 
   ## Example
 
-      plug Guardian.Plug.VerifyHeader, key: :secret
+      plug Backoffice.Guardian.Plug.VerifyHeader, key: :secret
 
   Verifying the session will update the claims on the request,
-  available with Guardian.Plug.claims/1
+  available with Backoffice.Guardian.Plug.claims/1
 
   In the case of an error, the claims will be set to { :error, reason }
 
@@ -23,14 +23,14 @@ defmodule Guardian.Plug.VerifyHeader do
   Realms are like the name of the token and allow many tokens
   to be sent with a single request.
 
-      plug Guardian.Plug.VerifyHeader, realm: "Bearer"
+      plug Backoffice.Guardian.Plug.VerifyHeader, realm: "Bearer"
 
   When a realm is not specified,
   the first authorization header found is used, and assumed to be a raw token
 
   #### example
 
-      plug Guardian.Plug.VerifyHeader
+      plug Backoffice.Guardian.Plug.VerifyHeader
 
       # will take the first auth header
       # Authorization: <jwt>
@@ -50,7 +50,7 @@ defmodule Guardian.Plug.VerifyHeader do
   def call(conn, opts) do
     key = Map.get(opts, :key, :default)
 
-    case Guardian.Plug.claims(conn, key) do
+    case Backoffice.Guardian.Plug.claims(conn, key) do
       {:ok, _} -> conn
       {:error, :no_session} ->
         verify_token(conn, fetch_token(conn, opts), key)
@@ -62,13 +62,13 @@ defmodule Guardian.Plug.VerifyHeader do
   defp verify_token(conn, "", _), do: conn
 
   defp verify_token(conn, token, key) do
-    case Guardian.decode_and_verify(token, %{}) do
+    case Backoffice.Guardian.decode_and_verify(token, %{}) do
       {:ok, claims} ->
         conn
-        |> Guardian.Plug.set_claims({:ok, claims}, key)
-        |> Guardian.Plug.set_current_token(token, key)
+        |> Backoffice.Guardian.Plug.set_claims({:ok, claims}, key)
+        |> Backoffice.Guardian.Plug.set_current_token(token, key)
       {:error, reason} ->
-        Guardian.Plug.set_claims(conn,{:error, reason}, key)
+        Backoffice.Guardian.Plug.set_claims(conn,{:error, reason}, key)
     end
   end
 

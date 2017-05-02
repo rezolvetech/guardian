@@ -1,13 +1,13 @@
-defmodule Guardian.Plug.VerifySessionTest do
+defmodule Backoffice.Guardian.Plug.VerifySessionTest do
   @moduledoc false
   use ExUnit.Case, async: true
   use Plug.Test
-  import Guardian.TestHelper
+  import Backoffice.Guardian.TestHelper
 
-  alias Guardian.Plug.VerifySession
+  alias Backoffice.Guardian.Plug.VerifySession
 
   setup do
-    config = Application.get_env(:guardian, Guardian)
+    config = Application.get_env(:guardian, Backoffice.Guardian)
     algo = hd(Keyword.get(config, :allowed_algos))
     secret = Keyword.get(config, :secret_key)
 
@@ -15,7 +15,7 @@ defmodule Guardian.Plug.VerifySessionTest do
     jose_jwk = %{"kty" => "oct", "k" => :base64url.encode(secret)}
 
     conn = conn_with_fetched_session(conn(:get, "/"))
-    claims = Guardian.Claims.app_claims(%{"sub" => "user", "aud" => "aud"})
+    claims = Backoffice.Guardian.Claims.app_claims(%{"sub" => "user", "aud" => "aud"})
 
     {_, jwt} = jose_jwk
                   |> JOSE.JWT.sign(jose_jws, claims)
@@ -33,46 +33,46 @@ defmodule Guardian.Plug.VerifySessionTest do
 
   test "with no JWT in the session at a default location", context do
     conn = run_plug(context.conn, VerifySession)
-    assert Guardian.Plug.claims(conn) == {:error, :no_session}
-    assert Guardian.Plug.current_token(conn) == nil
+    assert Backoffice.Guardian.Plug.claims(conn) == {:error, :no_session}
+    assert Backoffice.Guardian.Plug.current_token(conn) == nil
   end
 
   test "with no JWT in the session at a specified location", context do
     conn = run_plug(context.conn, VerifySession, %{key: :secret})
-    assert Guardian.Plug.claims(conn, :secret) == {:error, :no_session}
-    assert Guardian.Plug.current_token(conn, :secret) == nil
+    assert Backoffice.Guardian.Plug.claims(conn, :secret) == {:error, :no_session}
+    assert Backoffice.Guardian.Plug.current_token(conn, :secret) == nil
   end
 
   test "with a valid JWT in the session at the default location", context do
     conn =
       context.conn
-      |> Plug.Conn.put_session(Guardian.Keys.base_key(:default), context.jwt)
+      |> Plug.Conn.put_session(Backoffice.Guardian.Keys.base_key(:default), context.jwt)
       |> run_plug(VerifySession)
 
-    assert Guardian.Plug.claims(conn) == {:ok, context.claims}
-    assert Guardian.Plug.current_token(conn) == context.jwt
+    assert Backoffice.Guardian.Plug.claims(conn) == {:ok, context.claims}
+    assert Backoffice.Guardian.Plug.current_token(conn) == context.jwt
   end
 
   test "with a valid JWT in the session at a specified location", context do
     conn =
       context.conn
-      |> Plug.Conn.put_session(Guardian.Keys.base_key(:secret), context.jwt)
+      |> Plug.Conn.put_session(Backoffice.Guardian.Keys.base_key(:secret), context.jwt)
       |> run_plug(VerifySession, %{key: :secret})
 
-    assert Guardian.Plug.claims(conn, :secret) == {:ok, context.claims}
-    assert Guardian.Plug.current_token(conn, :secret) == context.jwt
+    assert Backoffice.Guardian.Plug.claims(conn, :secret) == {:ok, context.claims}
+    assert Backoffice.Guardian.Plug.current_token(conn, :secret) == context.jwt
   end
 
   test "with an existing session in another location", context do
     conn =
       context.conn
-      |> Plug.Conn.put_session(Guardian.Keys.base_key(:default), context.jwt)
-      |> Guardian.Plug.set_claims(context.claims)
-      |> Guardian.Plug.set_current_token(context.jwt)
-      |> Plug.Conn.put_session(Guardian.Keys.base_key(:secret), context.jwt)
+      |> Plug.Conn.put_session(Backoffice.Guardian.Keys.base_key(:default), context.jwt)
+      |> Backoffice.Guardian.Plug.set_claims(context.claims)
+      |> Backoffice.Guardian.Plug.set_current_token(context.jwt)
+      |> Plug.Conn.put_session(Backoffice.Guardian.Keys.base_key(:secret), context.jwt)
       |> run_plug(VerifySession, %{key: :secret})
 
-    assert Guardian.Plug.claims(conn, :secret) == {:ok, context.claims}
-    assert Guardian.Plug.current_token(conn, :secret) == context.jwt
+    assert Backoffice.Guardian.Plug.claims(conn, :secret) == {:ok, context.claims}
+    assert Backoffice.Guardian.Plug.current_token(conn, :secret) == context.jwt
   end
 end

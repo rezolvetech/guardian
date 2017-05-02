@@ -1,33 +1,33 @@
-defmodule Guardian do
+defmodule Backoffice.Guardian do
   @moduledoc """
   A module that provides JWT based authentication for Elixir applications.
 
-  Guardian provides the framework for using JWT in any Elixir application,
+  Backoffice.Guardian provides the framework for using JWT in any Elixir application,
   web based or otherwise, where authentication is required.
 
   The base unit of authentication currency is implemented using JWTs.
 
   ## Configuration
 
-      config :guardian, Guardian,
+      config :guardian, Backoffice.Guardian,
         allowed_algos: ["HS512", "HS384"],
         issuer: "MyApp",
         ttl: { 30, :days },
-        serializer: MyApp.GuardianSerializer,
+        serializer: MyApp.Backoffice.GuardianSerializer,
         secret_key: "lksjdlkjsdflkjsdf"
 
   """
-  import Guardian.Utils
+  import Backoffice.Guardian.Utils
 
   @default_algos ["HS512"]
   @default_token_type "access"
 
-  unless Application.get_env(:guardian, Guardian) do
-    raise "Guardian is not configured"
+  unless Application.get_env(:guardian, Backoffice.Guardian) do
+    raise "Backoffice.Guardian is not configured"
   end
 
-  unless Keyword.get(Application.get_env(:guardian, Guardian), :serializer) do
-    raise "Guardian requires a serializer"
+  unless Keyword.get(Application.get_env(:guardian, Backoffice.Guardian), :serializer) do
+    raise "Backoffice.Guardian requires a serializer"
   end
 
   @doc """
@@ -68,7 +68,7 @@ defmodule Guardian do
 
   ### Example
 
-      Guardian.encode_and_sign(
+      Backoffice.Guardian.encode_and_sign(
         user,
         :access,
         perms: %{ default: [:read, :write] }
@@ -107,12 +107,12 @@ defmodule Guardian do
   defp encode_from_hooked({:error, _reason} = error), do: error
 
   @doc false
-  def hooks_module, do: config(:hooks, Guardian.Hooks.Default)
+  def hooks_module, do: config(:hooks, Backoffice.Guardian.Hooks.Default)
 
   @doc """
   Revokes the current token.
   This provides a hook to revoke.
-  The logic for revocation of belongs in a Guardian.Hook.on_revoke
+  The logic for revocation of belongs in a Backoffice.Guardian.Hook.on_revoke
   This function is less efficient that revoke!/2.
   If you have claims, you should use that.
   """
@@ -127,11 +127,11 @@ defmodule Guardian do
   @doc """
   Revokes the current token.
   This provides a hook to revoke.
-  The logic for revocation of belongs in a Guardian.Hook.on_revoke
+  The logic for revocation of belongs in a Backoffice.Guardian.Hook.on_revoke
   """
   @spec revoke!(String.t, map, map) :: :ok | {:error, any}
   def revoke!(jwt, claims, _params) do
-    case Guardian.hooks_module.on_revoke(claims, jwt) do
+    case Backoffice.Guardian.hooks_module.on_revoke(claims, jwt) do
       {:ok, _} -> :ok
       {:error, reason} -> {:error, reason}
     end
@@ -157,7 +157,7 @@ defmodule Guardian do
   As refresh!/1 but allows the claims to be updated.
   Specifically useful is the ability to set the ttl of the token.
 
-      Guardian.refresh(existing_jwt, existing_claims, %{ttl: { 5, :minutes}})
+      Backoffice.Guardian.refresh(existing_jwt, existing_claims, %{ttl: { 5, :minutes}})
 
   Once the new token is created, the old one will be revoked.
   """
@@ -176,14 +176,14 @@ defmodule Guardian do
     new_claims = original_claims
      |> Map.drop(["jti", "iat", "exp", "nbf"])
      |> Map.merge(params)
-     |> Guardian.Claims.jti
-     |> Guardian.Claims.nbf
-     |> Guardian.Claims.iat
-     |> Guardian.Claims.ttl
+     |> Backoffice.Guardian.Claims.jti
+     |> Backoffice.Guardian.Claims.nbf
+     |> Backoffice.Guardian.Claims.iat
+     |> Backoffice.Guardian.Claims.ttl
 
     type = Map.get(new_claims, "typ")
 
-    {:ok, resource} = Guardian.serializer.from_token(new_claims["sub"])
+    {:ok, resource} = Backoffice.Guardian.serializer.from_token(new_claims["sub"])
 
     case encode_and_sign(resource, type, new_claims) do
       {:ok, jwt, full_claims} ->
@@ -200,7 +200,7 @@ defmodule Guardian do
   exchange
   Can be used to get an access token from a refresh token
 
-      Guardian.exchange(existing_jwt, "refresh", "access")
+      Backoffice.Guardian.exchange(existing_jwt, "refresh", "access")
 
   The old token wont be revoked after the exchange
   """
@@ -217,7 +217,7 @@ defmodule Guardian do
   @doc false
   defp do_exchange(from_typ, to_typ, original_claims) do
     if correct_typ?(original_claims, from_typ) do
-      {:ok, resource} = Guardian.serializer.from_token(original_claims["sub"])
+      {:ok, resource} = Backoffice.Guardian.serializer.from_token(original_claims["sub"])
       new_claims = original_claims
        |> Map.drop(["jti", "iat", "exp", "nbf", "typ"])
       case encode_and_sign(resource, to_typ, new_claims) do
@@ -284,7 +284,7 @@ defmodule Guardian do
     try do
       with {:ok, claims} <- decode_token(jwt, secret),
            {:ok, verified_claims} <- verify_claims(claims, params),
-           {:ok, {claims, _}} <- Guardian.hooks_module.on_verify(verified_claims, jwt),
+           {:ok, {claims, _}} <- Backoffice.Guardian.hooks_module.on_verify(verified_claims, jwt),
         do: {:ok, claims}
     rescue
       e ->
@@ -320,7 +320,7 @@ defmodule Guardian do
   defp verify_issuer?, do: config(:verify_issuer, false)
 
   @doc false
-  def config, do: Application.get_env(:guardian, Guardian)
+  def config, do: Application.get_env(:guardian, Backoffice.Guardian)
   @doc false
   def config(key, default \\ nil),
     do: config() |> Keyword.get(key, default) |> resolve_config(default)
@@ -381,7 +381,7 @@ defmodule Guardian do
     verify_claims(
       claims,
       Map.keys(claims),
-      config(:verify_module, Guardian.JWT),
+      config(:verify_module, Backoffice.Guardian.JWT),
       params
     )
   end
@@ -396,14 +396,14 @@ defmodule Guardian do
   defp verify_claims(claims, [], _, _), do: {:ok, claims}
 
   defp build_claims(object, type, claims) do
-    case Guardian.serializer.for_token(object) do
+    case Backoffice.Guardian.serializer.for_token(object) do
       {:ok, sub} ->
         full_claims = claims
                       |> stringify_keys
                       |> set_permissions
-                      |> Guardian.Claims.app_claims
-                      |> Guardian.Claims.typ(type)
-                      |> Guardian.Claims.sub(sub)
+                      |> Backoffice.Guardian.Claims.app_claims
+                      |> Backoffice.Guardian.Claims.typ(type)
+                      |> Backoffice.Guardian.Claims.sub(sub)
                       |> set_ttl
                       |> set_aud_if_nil(sub)
 
@@ -413,30 +413,30 @@ defmodule Guardian do
   end
 
   defp call_before_encode_and_sign_hook(object, type, claims) do
-    Guardian.hooks_module.before_encode_and_sign(object, type, claims)
+    Backoffice.Guardian.hooks_module.before_encode_and_sign(object, type, claims)
   end
 
   defp call_after_encode_and_sign_hook(resource, type, claims, jwt) do
-    Guardian.hooks_module.after_encode_and_sign(resource, type, claims, jwt)
+    Backoffice.Guardian.hooks_module.after_encode_and_sign(resource, type, claims, jwt)
   end
 
   defp set_permissions(claims) do
     perms = Map.get(claims, "perms", %{})
 
     claims
-    |> Guardian.Claims.permissions(perms)
+    |> Backoffice.Guardian.Claims.permissions(perms)
     |> Map.delete("perms")
   end
 
   defp set_ttl(claims) do
     claims
-    |> Guardian.Claims.ttl
+    |> Backoffice.Guardian.Claims.ttl
     |> Map.delete("ttl")
   end
 
   def set_aud_if_nil(claims, value) do
     if Map.get(claims, "aud") == nil do
-      Guardian.Claims.aud(claims, value)
+      Backoffice.Guardian.Claims.aud(claims, value)
     else
       claims
     end

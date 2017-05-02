@@ -1,11 +1,11 @@
-defmodule Guardian.Hooks do
+defmodule Backoffice.Guardian.Hooks do
   @moduledoc """
   This module helps to hook into the lifecycle of authentication.
   """
 
   defmacro __using__(_) do
     quote do
-      @behaviour Guardian.Hooks
+      @behaviour Backoffice.Guardian.Hooks
 
       def before_encode_and_sign(resource, type, claims) do
         {:ok, {resource, type, claims}}
@@ -61,9 +61,9 @@ defmodule Guardian.Hooks do
   ) :: {:ok, {map(), String.t}} | {:error, any}
 end
 
-defmodule Guardian.Hooks.Default do
+defmodule Backoffice.Guardian.Hooks.Default do
   @moduledoc """
-  Default implementation of GuardianHooks.
+  Default implementation of Backoffice.GuardianHooks.
   """
-  use Guardian.Hooks
+  use Backoffice.Guardian.Hooks
 end

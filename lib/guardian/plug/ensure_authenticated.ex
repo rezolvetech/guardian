@@ -1,4 +1,4 @@
-defmodule Guardian.Plug.EnsureAuthenticated do
+defmodule Backoffice.Guardian.Plug.EnsureAuthenticated do
   @moduledoc """
   This plug ensures that a valid JWT was provided and has been
   verified on the request.
@@ -9,14 +9,14 @@ defmodule Guardian.Plug.EnsureAuthenticated do
   ## Example
 
       # Will call the unauthenticated/2 function on your handler
-      plug Guardian.Plug.EnsureAuthenticated, handler: SomeModule
+      plug Backoffice.Guardian.Plug.EnsureAuthenticated, handler: SomeModule
 
       # look in the :secret location.  You can also do simple claim checks:
-      plug Guardian.Plug.EnsureAuthenticated, handler: SomeModule, key: :secret
+      plug Backoffice.Guardian.Plug.EnsureAuthenticated, handler: SomeModule, key: :secret
 
-      plug Guardian.Plug.EnsureAuthenticated, handler: SomeModule, typ: "access"
+      plug Backoffice.Guardian.Plug.EnsureAuthenticated, handler: SomeModule, typ: "access"
 
-  If the handler option is not passed, `Guardian.Plug.ErrorHandler` will provide
+  If the handler option is not passed, `Backoffice.Guardian.Plug.ErrorHandler` will provide
   the default behavior.
   """
   require Logger
@@ -31,7 +31,7 @@ defmodule Guardian.Plug.EnsureAuthenticated do
     %{
       handler: handler,
       key: Map.get(opts, :key, :default),
-      claims: Guardian.Utils.stringify_keys(claims_to_check)
+      claims: Backoffice.Guardian.Utils.stringify_keys(claims_to_check)
     }
   end
 
@@ -39,7 +39,7 @@ defmodule Guardian.Plug.EnsureAuthenticated do
   def call(conn, opts) do
     key = Map.get(opts, :key, :default)
 
-    case Guardian.Plug.claims(conn, key) do
+    case Backoffice.Guardian.Plug.claims(conn, key) do
       {:ok, claims} -> conn |> check_claims(opts, claims)
       {:error, reason} -> handle_error(conn, {:error, reason}, opts)
     end
@@ -74,6 +74,6 @@ defmodule Guardian.Plug.EnsureAuthenticated do
     {mod, fun}
   end
   defp build_handler_tuple(_) do
-    {Guardian.Plug.ErrorHandler, :unauthenticated}
+    {Backoffice.Guardian.Plug.ErrorHandler, :unauthenticated}
   end
 end

@@ -1,12 +1,12 @@
-defmodule Guardian.Permissions do
+defmodule Backoffice.Guardian.Permissions do
   @moduledoc """
   Functions for dealing with permissions sets.
 
-  Guardian provides facilities for working with
+  Backoffice.Guardian provides facilities for working with
   many permission sets in parallel.
-  Guardian must be configured with it's permissions at start time.
+  Backoffice.Guardian must be configured with it's permissions at start time.
 
-      config :guardian, Guardian,
+      config :guardian, Backoffice.Guardian,
              permissions: %{
                default: [
                  :read_profile,
@@ -24,10 +24,10 @@ defmodule Guardian.Permissions do
               ]
              }
 
-  Guardian.Permissions encodes the permissions for each as integer bitstrings
+  Backoffice.Guardian.Permissions encodes the permissions for each as integer bitstrings
   so you have 31 permissions per group.
   (remember javascript is only a 32 bit system)
-  Guardian tokens will remain small, event with a full 31 permissions in a set.
+  Backoffice.Guardian tokens will remain small, event with a full 31 permissions in a set.
   You should use less sets and more permissions,
   rather than more sets with fewer permissions per set.
   Permissions that are unknown are ignored.
@@ -36,32 +36,32 @@ defmodule Guardian.Permissions do
   ### Example working with permissions manually
 
       # Accessing default permissions
-      Guardian.Permissions.to_value([:read_profile, :write_profile]) # 3
-      Guardian.Permissions.to_list(3) # [:read_profile, :write_profile]
+      Backoffice.Guardian.Permissions.to_value([:read_profile, :write_profile]) # 3
+      Backoffice.Guardian.Permissions.to_list(3) # [:read_profile, :write_profile]
 
       # Accessing 'admin' permissions (see config above)
-      Guardian.Permissions.to_value(
+      Backoffice.Guardian.Permissions.to_value(
         [:financials_read, :financials_write], :admin
       ) # 12
 
       # [:financials_read, :financials_write]
-      Guardian.Permissions.to_list(12, :admin)
+      Backoffice.Guardian.Permissions.to_list(12, :admin)
 
       # Checking permissions
       # true
-      Guardian.Permissions.all?(3, [:users_read, :users_write], :admin)
+      Backoffice.Guardian.Permissions.all?(3, [:users_read, :users_write], :admin)
 
       # false
-      Guardian.Permissions.all?(1, [:users_read, :users_write], :admin)
+      Backoffice.Guardian.Permissions.all?(1, [:users_read, :users_write], :admin)
 
       # true
-      Guardian.Permissions.any?(12, [:users_read, :financial_read], :admin)
+      Backoffice.Guardian.Permissions.any?(12, [:users_read, :financial_read], :admin)
 
       # true
-      Guardian.Permissions.any?(11, [:read_profile, :read_item])
+      Backoffice.Guardian.Permissions.any?(11, [:read_profile, :read_item])
 
       # false
-      Guardian.Permissions.any?(11, [:delete_item, :write_item])
+      Backoffice.Guardian.Permissions.any?(11, [:delete_item, :write_item])
 
   ### Reading permissions from claims
 
@@ -74,17 +74,17 @@ defmodule Guardian.Permissions do
       } }
 
 
-      Guardian.Permissions.from_claims(claims) # 3
-      Guardian.Permissions.from_claims(claims, :admin) # 1
+      Backoffice.Guardian.Permissions.from_claims(claims) # 3
+      Backoffice.Guardian.Permissions.from_claims(claims, :admin) # 1
 
       # returns [:users_read]
-      Guardian.Permissions.from_claims(claims) |> Guardian.Permissions.to_list
+      Backoffice.Guardian.Permissions.from_claims(claims) |> Backoffice.Guardian.Permissions.to_list
 
   ### Adding permissions to claims
 
   This will encode the permissions as a map with integer values
 
-      Guardian.Claims.permissions(
+      Backoffice.Guardian.Claims.permissions(
         existing_claims,
         admin: [:users_read],
         default: [:read_item, :write_item]
@@ -92,14 +92,14 @@ defmodule Guardian.Permissions do
 
   Assign all permissions (and all future ones)
 
-      max = Guardian.Permissions.max
-      Guardian.Claims.permissions(existing_claims, admin: max, default: max)
+      max = Backoffice.Guardian.Permissions.max
+      Backoffice.Guardian.Claims.permissions(existing_claims, admin: max, default: max)
 
   ### Signing in with permissions
 
   This will encode the permissions as a map with integer values
 
-      Guardian.Plug.sign_in(
+      Backoffice.Guardian.Plug.sign_in(
         user,
         :access
         perms: %{ admin: [:users_read],
@@ -110,7 +110,7 @@ defmodule Guardian.Permissions do
 
   This will encode the permissions as a map with integer values
 
-      Guardian.encode_and_sign(
+      Backoffice.Guardian.encode_and_sign(
         user,
         :access,
         perms: %{
@@ -140,7 +140,7 @@ defmodule Guardian.Permissions do
 
   def available(type) when is_atom(type), do: Map.get(all_available(), type, [])
 
-  def all_available, do: Enum.into(Guardian.config(:permissions, %{}), %{})
+  def all_available, do: Enum.into(Backoffice.Guardian.config(:permissions, %{}), %{})
 
   def all?(value, expected, key \\ :default) do
     expected_value = to_value(expected, key)

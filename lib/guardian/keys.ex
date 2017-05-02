@@ -1,4 +1,4 @@
-defmodule Guardian.Keys do
+defmodule Backoffice.Guardian.Keys do
   @moduledoc false
 
   @doc false

@@ -1,8 +1,8 @@
-defmodule Guardian.JWT do
+defmodule Backoffice.Guardian.JWT do
   @moduledoc false
-  @behaviour Guardian.ClaimValidation
+  @behaviour Backoffice.Guardian.ClaimValidation
 
-  use Guardian.ClaimValidation
+  use Backoffice.Guardian.ClaimValidation
 
   def validate_claim(_, _, _), do: :ok
 end

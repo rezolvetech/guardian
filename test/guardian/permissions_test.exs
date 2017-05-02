@@ -1,7 +1,7 @@
-defmodule Guardian.PermissionsTest do
+defmodule Backoffice.Guardian.PermissionsTest do
   @moduledoc false
   use ExUnit.Case, async: true
-  alias Guardian.Permissions
+  alias Backoffice.Guardian.Permissions
 
   setup do
     {
@@ -177,13 +177,13 @@ defmodule Guardian.PermissionsTest do
   end
 
   test "integration with generating and decoding permissions" do
-    {:ok, jwt, _} = Guardian.encode_and_sign(
+    {:ok, jwt, _} = Backoffice.Guardian.encode_and_sign(
       "User:1",
       "token",
       %{perms: %{default: [:read, :write], other: [:other_read, :other_write]}}
     )
 
-    {:ok, claims} = Guardian.decode_and_verify(jwt, %{})
+    {:ok, claims} = Backoffice.Guardian.decode_and_verify(jwt, %{})
 
     # Check all the permutations of string vs atoms
     default_val = Permissions.to_value([:read, :write])

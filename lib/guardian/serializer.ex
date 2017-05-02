@@ -1,8 +1,8 @@
-defmodule Guardian.Serializer do
+defmodule Backoffice.Guardian.Serializer do
   @moduledoc """
-  Guardian Serializer Behaviour.
+  Backoffice.Guardian Serializer Behaviour.
 
-  Guardian requires a serializer. This serializer is responsible for fetching
+  Backoffice.Guardian requires a serializer. This serializer is responsible for fetching
   the resource from the encoded value in the JWT and also encoding a resource
   into a String so that it may be stored in the JWT
   """

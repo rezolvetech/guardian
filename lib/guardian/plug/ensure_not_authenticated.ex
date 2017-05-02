@@ -1,4 +1,4 @@
-defmodule Guardian.Plug.EnsureNotAuthenticated do
+defmodule Backoffice.Guardian.Plug.EnsureNotAuthenticated do
   @moduledoc """
   This plug ensures that a invalid JWT was provided and has been
   verified on the request.
@@ -9,16 +9,16 @@ defmodule Guardian.Plug.EnsureNotAuthenticated do
   ## Example
 
       # Will call the already_authenticated/2 function on your handler
-      plug Guardian.Plug.EnsureNotAuthenticated, handler: SomeModule
+      plug Backoffice.Guardian.Plug.EnsureNotAuthenticated, handler: SomeModule
 
       # look in the :secret location.  You can also do simple claim checks:
-      plug Guardian.Plug.EnsureNotAuthenticated, handler: SomeModule,
+      plug Backoffice.Guardian.Plug.EnsureNotAuthenticated, handler: SomeModule,
                                                  key: :secret
 
-      plug Guardian.Plug.EnsureNotAuthenticated, handler: SomeModule,
+      plug Backoffice.Guardian.Plug.EnsureNotAuthenticated, handler: SomeModule,
                                                  typ: "access"
 
-  If the handler option is not passed, `Guardian.Plug.ErrorHandler` will provide
+  If the handler option is not passed, `Backoffice.Guardian.Plug.ErrorHandler` will provide
   the default behavior.
   """
   require Logger
@@ -33,7 +33,7 @@ defmodule Guardian.Plug.EnsureNotAuthenticated do
     %{
       handler: handler,
       key: Map.get(opts, :key, :default),
-      claims: Guardian.Utils.stringify_keys(claims_to_check)
+      claims: Backoffice.Guardian.Utils.stringify_keys(claims_to_check)
     }
   end
 
@@ -41,7 +41,7 @@ defmodule Guardian.Plug.EnsureNotAuthenticated do
   def call(conn, opts) do
     key = Map.get(opts, :key, :default)
 
-    case Guardian.Plug.claims(conn, key) do
+    case Backoffice.Guardian.Plug.claims(conn, key) do
       {:ok, claims} -> conn |> check_claims(opts, claims)
       {:error, _reason} -> conn
     end
@@ -75,6 +75,6 @@ defmodule Guardian.Plug.EnsureNotAuthenticated do
   end
 
   defp build_handler_tuple(_) do
-    {Guardian.Plug.ErrorHandler, :already_authenticated}
+    {Backoffice.Guardian.Plug.ErrorHandler, :already_authenticated}
   end
 end

@@ -1,16 +1,16 @@
-defmodule Guardian.Integration.HeaderAuthTest do
+defmodule Backoffice.Guardian.Integration.HeaderAuthTest do
   @moduledoc false
   use ExUnit.Case
   use Plug.Test
-  import Guardian.TestHelper
+  import Backoffice.Guardian.TestHelper
 
-  alias Guardian.Plug.LoadResource
-  alias Guardian.Plug.VerifyHeader
-  alias Guardian.Claims
+  alias Backoffice.Guardian.Plug.LoadResource
+  alias Backoffice.Guardian.Plug.VerifyHeader
+  alias Backoffice.Guardian.Claims
 
   defmodule TestSerializer do
     @moduledoc false
-    @behaviour Guardian.Serializer
+    @behaviour Backoffice.Guardian.Serializer
 
     def from_token("Org:" <> id), do: {:ok, id}
     def for_token(_), do: {:ok, nil}
@@ -28,8 +28,8 @@ defmodule Guardian.Integration.HeaderAuthTest do
       |> run_plug(VerifyHeader)
       |> run_plug(LoadResource, serializer: TestSerializer)
 
-    assert Guardian.Plug.current_resource(conn) == "37"
-    assert Guardian.Plug.claims(conn) == {:ok, claims}
-    assert Guardian.Plug.current_token(conn) == jwt
+    assert Backoffice.Guardian.Plug.current_resource(conn) == "37"
+    assert Backoffice.Guardian.Plug.claims(conn) == {:ok, claims}
+    assert Backoffice.Guardian.Plug.current_token(conn) == jwt
   end
 end

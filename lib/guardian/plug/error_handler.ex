@@ -1,4 +1,4 @@
-defmodule Guardian.Plug.ErrorHandler do
+defmodule Backoffice.Guardian.Plug.ErrorHandler do
   @moduledoc """
   A default error handler that can be used for failed authentication
   """

@@ -1,10 +1,10 @@
-defmodule Guardian.Plug.EnsurePermissionTest do
+defmodule Backoffice.Guardian.Plug.EnsurePermissionTest do
   @moduledoc false
   use ExUnit.Case, async: true
   use Plug.Test
-  import Guardian.TestHelper
+  import Backoffice.Guardian.TestHelper
 
-  alias Guardian.Plug.EnsurePermissions
+  alias Backoffice.Guardian.Plug.EnsurePermissions
 
   defmodule TestHandler do
     @moduledoc false
@@ -22,12 +22,12 @@ defmodule Guardian.Plug.EnsurePermissionTest do
   end
 
   test "doesnt call unauthorized when permissions are present", %{conn: conn} do
-    pems = Guardian.Permissions.to_value([:read, :write])
+    pems = Backoffice.Guardian.Permissions.to_value([:read, :write])
     claims = %{"pem" => %{"default" => pems}}
 
     expected_conn =
       conn
-      |> Guardian.Plug.set_claims({:ok, claims})
+      |> Backoffice.Guardian.Plug.set_claims({:ok, claims})
       |> Plug.Conn.fetch_query_params
       |> run_plug(EnsurePermissions, handler: TestHandler,
                   default: [:read, :write])
@@ -36,12 +36,12 @@ defmodule Guardian.Plug.EnsurePermissionTest do
   end
 
   test "is invalid when missing a requested permission", %{conn: conn} do
-    pems = Guardian.Permissions.to_value([:read])
+    pems = Backoffice.Guardian.Permissions.to_value([:read])
     claims = %{"pem" => %{"default" => pems}}
 
     expected_conn =
       conn
-      |> Guardian.Plug.set_claims({:ok, claims})
+      |> Backoffice.Guardian.Plug.set_claims({:ok, claims})
       |> Plug.Conn.fetch_query_params
       |> run_plug(EnsurePermissions, handler: TestHandler,
                   default: [:read, :write])
@@ -50,12 +50,12 @@ defmodule Guardian.Plug.EnsurePermissionTest do
   end
 
   test "is invalid when claims don't include the pem key", %{conn: conn} do
-    pems = Guardian.Permissions.to_value([:other_read], :other)
+    pems = Backoffice.Guardian.Permissions.to_value([:other_read], :other)
     claims = %{"pem" => %{"default" => pems}}
 
     expected_conn =
       conn
-      |> Guardian.Plug.set_claims({:ok, claims})
+      |> Backoffice.Guardian.Plug.set_claims({:ok, claims})
       |> Plug.Conn.fetch_query_params
       |> run_plug(EnsurePermissions, handler: TestHandler,
                   default: [:read, :write])
@@ -64,16 +64,16 @@ defmodule Guardian.Plug.EnsurePermissionTest do
   end
 
   test "is invalid when all permissions are not present", %{conn: conn} do
-    pems = Guardian.Permissions.to_value(
+    pems = Backoffice.Guardian.Permissions.to_value(
       [:read, :write, :update, :delete],
       :default
     )
-    other_pems = Guardian.Permissions.to_value([:other_write], :other)
+    other_pems = Backoffice.Guardian.Permissions.to_value([:other_write], :other)
     claims = %{"pem" => %{"default" => pems, "other" => other_pems}}
 
     expected_conn =
       conn
-      |> Guardian.Plug.set_claims({:ok, claims})
+      |> Backoffice.Guardian.Plug.set_claims({:ok, claims})
       |> Plug.Conn.fetch_query_params
       |> run_plug(EnsurePermissions, handler: TestHandler,
                   default: [:read, :write], other: [:other_read])
@@ -82,12 +82,12 @@ defmodule Guardian.Plug.EnsurePermissionTest do
   end
 
   test "is valid when all permissions are present", %{conn: conn} do
-    pems = Guardian.Permissions.to_value(
+    pems = Backoffice.Guardian.Permissions.to_value(
       [:read, :write, :update, :delete],
       :default
     )
 
-    other_pems = Guardian.Permissions.to_value(
+    other_pems = Backoffice.Guardian.Permissions.to_value(
       [:other_read, :other_write],
       :other
     )
@@ -96,7 +96,7 @@ defmodule Guardian.Plug.EnsurePermissionTest do
 
     expected_conn =
       conn
-      |> Guardian.Plug.set_claims({:ok, claims})
+      |> Backoffice.Guardian.Plug.set_claims({:ok, claims})
       |> Plug.Conn.fetch_query_params
       |> run_plug(EnsurePermissions, handler: TestHandler,
                   default: [:read, :write], other: [:other_read])
@@ -105,12 +105,12 @@ defmodule Guardian.Plug.EnsurePermissionTest do
   end
 
   test "is invalid when non of the one_of permissions set is present", %{conn: conn} do
-    pems = Guardian.Permissions.to_value(
+    pems = Backoffice.Guardian.Permissions.to_value(
       [:read, :write, :update, :delete],
       :default
     )
 
-    other_pems = Guardian.Permissions.to_value(
+    other_pems = Backoffice.Guardian.Permissions.to_value(
       [:other_read, :other_write],
       :other
     )
@@ -119,7 +119,7 @@ defmodule Guardian.Plug.EnsurePermissionTest do
 
     expected_conn =
       conn
-      |> Guardian.Plug.set_claims({:ok, claims})
+      |> Backoffice.Guardian.Plug.set_claims({:ok, claims})
       |> Plug.Conn.fetch_query_params
       |> run_plug(EnsurePermissions, handler: TestHandler,
                   one_of: [%{other: [:other_read]}, %{default: [:read, :write]}])
@@ -128,12 +128,12 @@ defmodule Guardian.Plug.EnsurePermissionTest do
   end
 
   test "is valid when at least one_of the permissions set is present", %{conn: conn} do
-    pems = Guardian.Permissions.to_value(
+    pems = Backoffice.Guardian.Permissions.to_value(
       [:read, :write, :update, :delete],
       :default
     )
 
-    other_pems = Guardian.Permissions.to_value(
+    other_pems = Backoffice.Guardian.Permissions.to_value(
       [:other_read, :other_write],
       :other
     )
@@ -142,7 +142,7 @@ defmodule Guardian.Plug.EnsurePermissionTest do
 
     expected_conn =
       conn
-      |> Guardian.Plug.set_claims({:ok, claims})
+      |> Backoffice.Guardian.Plug.set_claims({:ok, claims})
       |> Plug.Conn.fetch_query_params
       |> run_plug(EnsurePermissions, handler: TestHandler,
                   one_of: [%{other: [:other_read]}, %{default: [:read, :write]}])
@@ -151,12 +151,12 @@ defmodule Guardian.Plug.EnsurePermissionTest do
   end
 
   test "is valid one_of and permissions are a kw list", %{conn: conn} do
-    pems = Guardian.Permissions.to_value(
+    pems = Backoffice.Guardian.Permissions.to_value(
       [:read, :write, :update, :delete],
       :default
     )
 
-    other_pems = Guardian.Permissions.to_value(
+    other_pems = Backoffice.Guardian.Permissions.to_value(
       [:other_read, :other_write],
       :other
     )
@@ -164,7 +164,7 @@ defmodule Guardian.Plug.EnsurePermissionTest do
     claims = %{"pem" => %{"special" => other_pems, "default" => pems}}
     expected_conn =
     conn
-    |> Guardian.Plug.set_claims({:ok, claims})
+    |> Backoffice.Guardian.Plug.set_claims({:ok, claims})
     |> Plug.Conn.fetch_query_params
     |> run_plug(
       EnsurePermissions,
@@ -176,17 +176,17 @@ defmodule Guardian.Plug.EnsurePermissionTest do
   end
 
   test "halts the connection", %{conn: conn} do
-    pems = Guardian.Permissions.to_value(
+    pems = Backoffice.Guardian.Permissions.to_value(
       [:read, :write, :update, :delete],
       :default
     )
 
-    other_pems = Guardian.Permissions.to_value([:other_write], :other)
+    other_pems = Backoffice.Guardian.Permissions.to_value([:other_write], :other)
     claims = %{"pem" => %{"default" => pems, "other" => other_pems}}
 
     expected_conn =
       conn
-      |> Guardian.Plug.set_claims({:ok, claims})
+      |> Backoffice.Guardian.Plug.set_claims({:ok, claims})
       |> Plug.Conn.fetch_query_params
       |> run_plug(EnsurePermissions, handler: TestHandler,
                   default: [:read, :write], other: [:other_read])

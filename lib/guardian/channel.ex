@@ -1,12 +1,12 @@
-defmodule Guardian.Channel do
+defmodule Backoffice.Guardian.Channel do
   @moduledoc """
-  Provides integration for channels to use Guardian tokens.
+  Provides integration for channels to use Backoffice.Guardian tokens.
 
   ## Example
 
       defmodule MyApp.MyChannel do
         use Phoenix.Channel
-        use Guardian.Channel
+        use Backoffice.Guardian.Channel
 
         def join(_room, %{ claims: claims, resource: resource }, socket) do
           {:ok, %{ message: "Joined" }, socket}
@@ -33,14 +33,14 @@ defmodule Guardian.Channel do
       let guardianToken = jQuery('meta[name="guardian_token"]').attr('content')
       let chan = socket.chan("pings", { guardian_token: guardianToken })
 
-  Consider using Guardian.Phoenix.Socket helpers
+  Consider using Backoffice.Guardian.Phoenix.Socket helpers
   directly and authenticating the connection rather than the channel.
   """
   defmacro __using__(opts) do
     key = Keyword.get(opts, :key, :default)
 
     quote do
-      import Guardian.Phoenix.Socket
+      import Backoffice.Guardian.Phoenix.Socket
 
       def join(room, params = %{"guardian_token" => jwt}, socket) do
         case sign_in(socket, jwt, params, key: unquote(key)) do

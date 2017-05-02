@@ -1,8 +1,8 @@
-defmodule Guardian.Phoenix.SocketTest do
+defmodule Backoffice.Guardian.Phoenix.SocketTest do
   @moduledoc false
   use ExUnit.Case, async: true
 
-  alias Guardian.Phoenix.Socket, as: GuardianSocket
+  alias Backoffice.Guardian.Phoenix.Socket, as: GuardianSocket
 
   defmodule TestSocket do
     @moduledoc false
@@ -14,13 +14,13 @@ defmodule Guardian.Phoenix.SocketTest do
     claims = %{
       "aud" => "User:1",
       "typ" => "access",
-      "exp" => Guardian.Utils.timestamp + 10_000,
-      "iat" => Guardian.Utils.timestamp,
+      "exp" => Backoffice.Guardian.Utils.timestamp + 10_000,
+      "iat" => Backoffice.Guardian.Utils.timestamp,
       "iss" => "MyApp",
       "sub" => "User:1",
       "something_else" => "foo"}
 
-    config = Application.get_env(:guardian, Guardian)
+    config = Application.get_env(:guardian, Backoffice.Guardian)
     algo = hd(Keyword.get(config, :allowed_algos))
     secret = Keyword.get(config, :secret_key)
 
@@ -40,7 +40,7 @@ defmodule Guardian.Phoenix.SocketTest do
   end
 
   test "current_claims from socket", %{socket: socket} do
-    key = Guardian.Keys.claims_key
+    key = Backoffice.Guardian.Keys.claims_key
     assigns = %{} |> Map.put(key, %{"the" => "claims"})
     socket = Map.put(socket, :assigns, assigns)
 
@@ -48,7 +48,7 @@ defmodule Guardian.Phoenix.SocketTest do
   end
 
   test "current_claims from socket in secret location", %{socket: socket} do
-    key = Guardian.Keys.claims_key(:secret)
+    key = Backoffice.Guardian.Keys.claims_key(:secret)
     assigns = %{} |> Map.put(key, %{"the" => "claim"})
     socket = Map.put(socket, :assigns, assigns)
 
@@ -56,7 +56,7 @@ defmodule Guardian.Phoenix.SocketTest do
   end
 
   test "current_token from socket", %{socket: socket} do
-    key = Guardian.Keys.jwt_key
+    key = Backoffice.Guardian.Keys.jwt_key
     assigns = %{} |> Map.put(key, "THE JWT")
     socket = Map.put(socket, :assigns, assigns)
 
@@ -64,7 +64,7 @@ defmodule Guardian.Phoenix.SocketTest do
   end
 
   test "current_token from socket secret location", %{socket: socket} do
-    key = Guardian.Keys.jwt_key(:secret)
+    key = Backoffice.Guardian.Keys.jwt_key(:secret)
     assigns = %{} |> Map.put(key, "THE JWT")
     socket = Map.put(socket, :assigns, assigns)
 
@@ -72,7 +72,7 @@ defmodule Guardian.Phoenix.SocketTest do
   end
 
   test "fetch serialized sub for current_resource", %{socket: s, claims: c} do
-    key = Guardian.Keys.claims_key
+    key = Backoffice.Guardian.Keys.claims_key
     assigns = %{} |> Map.put(key, c)
     socket = Map.put(s, :assigns, assigns)
 
@@ -86,7 +86,7 @@ defmodule Guardian.Phoenix.SocketTest do
   test "is authenticated if there is a token present", %{socket: socket} do
     refute GuardianSocket.authenticated?(socket)
 
-    key = Guardian.Keys.jwt_key
+    key = Backoffice.Guardian.Keys.jwt_key
     assigns = %{} |> Map.put(key, "THE JWT")
     socket = Map.put(socket, :assigns, assigns)
 
@@ -96,7 +96,7 @@ defmodule Guardian.Phoenix.SocketTest do
   test "authenticated if token present in the secret location", %{socket: s} do
     refute GuardianSocket.authenticated?(s, :secret)
 
-    key = Guardian.Keys.jwt_key(:secret)
+    key = Backoffice.Guardian.Keys.jwt_key(:secret)
     assigns = %{} |> Map.put(key, "THE JWT")
     socket = Map.put(s, :assigns, assigns)
 

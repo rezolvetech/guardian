@@ -1,11 +1,11 @@
-defmodule Guardian.Plug.EnsureAuthenticatedTest do
+defmodule Backoffice.Guardian.Plug.EnsureAuthenticatedTest do
   @moduledoc false
   use ExUnit.Case, async: true
   use Plug.Test
   import ExUnit.CaptureLog
-  import Guardian.TestHelper
+  import Backoffice.Guardian.TestHelper
 
-  alias Guardian.Plug.EnsureAuthenticated
+  alias Backoffice.Guardian.Plug.EnsureAuthenticated
 
   defmodule TestHandler do
     @moduledoc false
@@ -40,10 +40,10 @@ defmodule Guardian.Plug.EnsureAuthenticatedTest do
     assert capture_log([level: :warn], fun) =~ ":on_failure is deprecated"
   end
 
-  test "init/1 defaults the handler option to Guardian.Plug.ErrorHandler" do
+  test "init/1 defaults the handler option to Backoffice.Guardian.Plug.ErrorHandler" do
     %{handler: handler_opts} = EnsureAuthenticated.init %{}
 
-    assert handler_opts == {Guardian.Plug.ErrorHandler, :unauthenticated}
+    assert handler_opts == {Backoffice.Guardian.Plug.ErrorHandler, :unauthenticated}
   end
 
   test "init/1 with default options" do
@@ -51,7 +51,7 @@ defmodule Guardian.Plug.EnsureAuthenticatedTest do
 
     assert options == %{
       claims: %{},
-      handler: {Guardian.Plug.ErrorHandler, :unauthenticated},
+      handler: {Backoffice.Guardian.Plug.ErrorHandler, :unauthenticated},
       key: :default
     }
   end
@@ -73,7 +73,7 @@ defmodule Guardian.Plug.EnsureAuthenticatedTest do
 
     ensured_conn =
       conn
-      |> Guardian.Plug.set_claims({:ok, claims})
+      |> Backoffice.Guardian.Plug.set_claims({:ok, claims})
       |> run_plug(EnsureAuthenticated, handler: TestHandler, typ: "access")
 
     refute must_authenticate?(ensured_conn)
@@ -84,7 +84,7 @@ defmodule Guardian.Plug.EnsureAuthenticatedTest do
 
     ensured_conn =
       conn
-      |> Guardian.Plug.set_claims({:ok, claims})
+      |> Backoffice.Guardian.Plug.set_claims({:ok, claims})
       |> run_plug(EnsureAuthenticated, handler: TestHandler, typ: "access")
 
     assert must_authenticate?(ensured_conn)
@@ -95,7 +95,7 @@ defmodule Guardian.Plug.EnsureAuthenticatedTest do
 
     ensured_conn =
       conn
-      |> Guardian.Plug.set_claims({:ok, claims})
+      |> Backoffice.Guardian.Plug.set_claims({:ok, claims})
       |> run_plug(EnsureAuthenticated, handler: TestHandler)
 
     refute must_authenticate?(ensured_conn)
@@ -106,7 +106,7 @@ defmodule Guardian.Plug.EnsureAuthenticatedTest do
 
     ensured_conn =
       conn
-      |> Guardian.Plug.set_claims({:ok, claims}, :secret)
+      |> Backoffice.Guardian.Plug.set_claims({:ok, claims}, :secret)
       |> run_plug(EnsureAuthenticated, handler: TestHandler, key: :secret)
 
     refute must_authenticate?(ensured_conn)
